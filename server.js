@@ -1,4 +1,5 @@
 // Required modules
+var fs = require('fs');
 var http = require('http'); 
 var express = require('express');
 var	bodyParser = require('body-parser');
@@ -23,6 +24,80 @@ app.use('/scripts', express.static('scripts'));
 app.use('/styles', express.static('styles'));
 
 
+/* ========================================================
+ * ===================  Read Word Sets  ===================
+ * ======================================================== */
+
+function loadWords() {
+    filename = "wordSets/codenames_words.txt";
+    fs.readFile(filename, 'utf8', function(err, data) {
+        if (err) throw err;
+        return data.split('\n');
+    });
+}
+
+function generateWords(callback) {
+    filename = "wordSets/codenames_words.txt";
+
+    fs.readFile(filename, 'utf8', function(err, data) {
+        if (err) throw err;
+
+        var wordSet = data.split('\n');
+
+        var total = wordSet.length;
+        var chosenWords = [];
+
+        while (chosenWords.length < 25) {
+            var idx = Math.floor(Math.random() * total);
+            var word = wordSet[idx];
+            if (chosenWords.indexOf(word) == -1) {
+                chosenWords.push(word);
+            }
+        }
+
+        callback(chosenWords);
+    });
+}
+
+/* ========================================================
+ * =====================  Game Logic  =====================
+ * ======================================================== */
+
+// Shuffle an array with Fisher-Yates Shuffle
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
+// Make card team assignemnts
+function assignCards() {
+    var reds = 8;
+    var blues = 9;
+
+    var assignments = ['blue','red','blue','neutral','red','blue','neutral','red',
+                        'blue','neutral','red','blue','neutral','red','blue','neutral',
+                        'red','blue', 'assassin','neutral','red','blue','neutral','red','blue'];
+
+    for (var i=0; i<7; i++) {
+        shuffle(assignments);
+    }
+
+    return assignments;
+}
 
 /* ========================================================
  * ================  Socket Communications  ===============
@@ -49,7 +124,16 @@ io.sockets.on('connection', function(socket){
 // URL to access a specified chatroom
 app.get('/game', function(request, response){
     // Send the user to a game
-    response.render('mock_game.html');
+    generateWords(function(words) {
+
+        var teams = assignCards();
+        var card_data = { 'cards' : [] };
+
+        for (var i=0; i<words.length; i++) {
+            card_data['cards'].push({ 'word' : words[i], 'team' : teams[i] });
+        }
+        response.render('mock_game.html', card_data);
+    });
 });
 
 // Catchall page - Home

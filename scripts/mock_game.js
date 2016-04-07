@@ -26,7 +26,7 @@ window.addEventListener('load', function(){
 	$('.blue').css('background-color', 'rgba(25,133,196,1)');
 	*/
 
-	var spymasterView = false;
+	var spymasterView = true;
 
 	if (spymasterView) {
 		// BOX SHADOW STYLE
