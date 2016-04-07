@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CodeNames</title>
+    <script src="mock_home.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="mock_home.css" type="text/css" />
+    <link href='https://fonts.googleapis.com/css?family=Exo:400,200,200italic,400italic' rel='stylesheet' type='text/css'>
+</head>
+<body>
+	<div id='grad'></div>
+	<h1><span class='name1'>Code</span><span class='name2'>Names</span></h1>
+	<p>Enter game information:</p>
+	<input type='text' placeholder='Username'></input>
+	<input type='text' placeholder='Game Name'></input>
+	<br>
+	<button type='button' id='newGame'><span class='name1'>Create</span> <span class='name2'>Game</span></button>
+	<button type='button' id='joinGame'><span class='name1'>Join</span> <span class='name2'>Game</span></button>
+	<p id='rules'>How to play</p>
+	<!-- Setup and Rules windows -->
+	<div class='setup' id='newGameSetup'>
+		<p class='close'>X</p>
+		<form>
+			<p>Number of Players:</p><input type='number' value='4'></input>
+			<p>Your Role:</p>
+			<select id="role" name="roles">
+				<option value="spy1">Red Team: Spy Master</option>
+				<option value="guess1">Red Team: Guesser</option>
+				<option value="spy2">Blue Team: Spy Master</option>
+				<option value="guess2">Blue Team: Guesser</option>
+			</select>
+			<p>Clue Timer:</p><input type='number' id='clueMins' value='2' />:<input type='number' id='clueSecs' value='30' />
+			<p>Guess Timer:</p><input type='number' id='guessMins' value='2' />:<input type='number' id='guessSecs' value='00' />
+			<input type='button' id='create' value='Create'></input>
+		</form>
+	</div>
+	<div class='setup' id='joinGameSetup'>
+		<p class='close'>X</p>
+		<form>
+			<p>Your Role:</p>
+			<select id="role2" name="roles">
+				<option value="spy1">Red Team: Spy Master</option>
+				<option value="guess1">Red Team: Guesser</option>
+				<option value="spy2">Blue Team: Spy Master</option>
+				<option value="guess2">Blue Team: Guesser</option>
+			</select>
+			<input type='button' id='join' value='Join'></input>
+		</form>
+	</div>
+	<div class='setup' id='howToPlay'>
+		<p class='close'>X</p>
+		<h2>Rules:</h2>
+		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean auctor consectetur magna id interdum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ullamcorper turpis vitae nibh feugiat commodo. Ut condimentum, neque vitae ullamcorper hendrerit, est neque aliquam turpis, ac sollicitudin erat tortor in dui. Donec ex nibh, pulvinar et mi ut, finibus pellentesque libero. Morbi in sollicitudin enim. Ut vitae orci nisl. Etiam vel consequat mi. Morbi ac ex eu felis vehicula congue. Curabitur lacus nibh, bibendum in tincidunt rhoncus, ultrices ac sem. Nam non ipsum tincidunt, volutpat arcu sed, tristique orci.
+
+		Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec nisi lacus, ullamcorper vel massa nec, pharetra molestie nisi. Fusce maximus nisi arcu, ultrices aliquet elit ultrices quis. Maecenas placerat tellus vel velit scelerisque, dictum porttitor elit ullamcorper. Nunc condimentum pharetra elit nec dictum. Quisque nec porta odio. Nam nec posuere risus, at ultricies mauris. Vestibulum accumsan nunc at sapien cursus lobortis. Ut at purus pharetra, pharetra lorem ac, efficitur orci. Cras tempor et leo non fermentum. Ut sed risus in odio molestie commodo sed a purus. Nullam ultrices, risus sit amet condimentum elementum, ante est porta diam, vel efficitur nunc ipsum ut felis. Sed commodo sapien quis enim aliquam aliquam. Sed ac sollicitudin orci. Mauris sagittis fermentum orci, at pellentesque arcu lacinia lobortis. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+
+		Aliquam venenatis tortor metus, vitae tincidunt neque pretium vitae. Nulla molestie justo ut arcu faucibus, eu fringilla enim auctor. Aliquam eleifend sit amet ligula quis mollis. Sed auctor, eros vitae commodo convallis, est nunc ullamcorper eros, vel interdum libero orci eu ante. Fusce vestibulum lacus eget dolor laoreet, quis vestibulum turpis rhoncus. Vivamus suscipit sem ut interdum ullamcorper. Pellentesque et elit sit amet purus viverra pellentesque sollicitudin ac felis. Morbi mollis felis vitae sem tincidunt, a consectetur velit rhoncus. In vel orci metus. Praesent vestibulum diam eu lorem elementum, a blandit quam aliquam.
+
+		Mauris vitae nisl sagittis nisi pretium tristique at vitae tortor. Morbi et varius felis. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aliquam fringilla risus sed tempus viverra. Curabitur posuere tempor viverra. Suspendisse lorem est, dignissim nec viverra sit amet, varius at ipsum. Etiam vel metus accumsan, suscipit risus sed, aliquet ex. Quisque feugiat est id quam accumsan tempus. Ut vitae urna metus. Cras tristique risus eget ipsum facilisis rhoncus. Sed non mauris non mi vulputate pharetra a id justo.
+
+		Ut ac diam dictum metus ultrices dictum. Phasellus quis justo tellus. Integer consequat ligula quis magna suscipit mollis. Duis cursus pharetra purus, quis rhoncus leo sollicitudin sit amet. Interdum et malesuada fames ac ante ipsum primis in faucibus. Suspendisse elementum, nisi vel hendrerit lobortis, diam sapien ultricies nunc, in dapibus lectus diam et justo. Vestibulum bibendum nulla at lacus ullamcorper, at cursus tortor eleifend. Curabitur vel massa rhoncus, volutpat sapien et, molestie leo. Donec congue bibendum nulla sit amet pretium.</p>
+	</div>
+	
+</body>
+</html>
