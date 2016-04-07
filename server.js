@@ -72,17 +72,41 @@ db.once('open', function() {
      * ======================================================== */
 
     // URL to access a specified chatroom
-    app.get('/game', function(request, response){
+    app.get('/:gameID', function(request, response){
+        //console.log('Creating a game!');
         // Send the user to a game
-        generateWords(function(words) {
+        var gameID = request.params.gameID;
 
-            var teams = assignCards();
-            var card_data = { 'cards' : [] };
+        Game.findOne({ gameID: gameID }, function(err, g) {
+            //console.log('Found!');
+            //console.log(g['gameID']);
 
-            for (var i=0; i<words.length; i++) {
-                card_data['cards'].push({ 'word' : words[i], 'team' : teams[i] });
+            if (g === [] || g === null) {
+                //console.log('Creating a game!');
+                generateWords(function(words) {
+
+                    var teams = assignCards();
+                    var card_data = { 'cards' : [] };
+
+                    for (var i=0; i<words.length; i++) {
+                        card_data['cards'].push({ 'word': words[i], 'team': teams[i], 'guessed': false });
+                    }
+
+                    var game = new Game({
+                        gameID: gameID,
+                        cards: card_data['cards'],
+                        players: [],
+                        turn: 'BSM',
+                        gameOver: false
+                    });
+
+                    game.save();
+
+                    response.render('mock_game.html', card_data);
+                });
+            } else {
+                response.redirect('/');
             }
-            response.render('mock_game.html', card_data);
         });
     });
 
