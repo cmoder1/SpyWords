@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CodeNames</title>
+    <script src="../scripts/mock_game.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="../styles/mock_game.css" type="text/css" />
+    <link href='https://fonts.googleapis.com/css?family=Exo:400,200italic' rel='stylesheet' type='text/css'>
+</head>
+<body>
+	<div id='blueTurn'></div>
+	<div id='redTurn'></div>
+	<div id='grad'></div>
+	<h1><span class='name1'>Code</span><span class='name2'>Names</span></h1>
+	<div id='cards'>
+		<div class='card blue'>
+			<p>Car</p>
+		</div>
+		<div class='card red'>
+			<p>Shakespeare</p>
+		</div>
+		<div class='card blue'>
+			<p>Thumb</p>
+		</div>
+		<div class='card blue'>
+			<p>Octopus</p>
+		</div>
+		<div class='card neutral'>
+			<p>Key</p>
+		</div>
+		<div class='card blue'>
+			<p>Mug</p>
+		</div>
+		<div class='card neutral'>
+			<p>Crane</p>
+		</div>
+		<div class='card blue'>
+			<p>Chocolate</p>
+		</div>
+		<div class='card neutral'>
+			<p>Plastic</p>
+		</div>
+		<div class='card red'>
+			<p>Web</p>
+		</div>
+		<div class='card blue'>
+			<p>Arm</p>
+		</div>
+		<div class='card assassin'>
+			<p>Watch</p>
+		</div>
+		<div class='card red'>
+			<p>Cell</p>
+		</div>
+		<div class='card red'>
+			<p>Knife</p>
+		</div>
+		<div class='card neutral'>
+			<p>Pass</p>
+		</div>
+		<div class='card red'>
+			<p>Contract</p>
+		</div>
+		<div class='card neutral'>
+			<p>Plate</p>
+		</div>
+		<div class='card red'>
+			<p>House</p>
+		</div>
+		<div class='card blue'>
+			<p>Horseshoe</p>
+		</div>
+		<div class='card neutral'>
+			<p>Organ</p>
+		</div>
+		<div class='card neutral'>
+			<p>Stadium</p>
+		</div>
+		<div class='card blue'>
+			<p>Foot</p>
+		</div>
+		<div class='card red'>
+			<p>Limousine</p>
+		</div>
+		<div class='card blue'>
+			<p>Bridge</p>
+		</div>
+		<div class='card red'>
+			<p>Star</p>
+		</div>
+
+	</div>
+	<div id="controls">
+		<h2><span id='redScore'>8</span> - <span id='blueScore'>9</span></h2>
+		<div id="timer">
+			<p><span id='minutes'>2</span>:<span id='seconds'>30</span></p>
+		</div>
+		<div id="turnOrder">
+			<p>Turn Order:</p>
+			<div class="role blueTeam" id="p1"><p>Me</p></div>
+			<div class="role blueTeam" id="p2"><p>Sarah</p></div>
+			<div class="role redTeam" id="p3"><p>David</p></div>
+			<div class="role redTeam" id="p4"><p>Kate</p></div>
+		</div>
+		<div id="clueEntry">
+			<form id="clueSubmission">
+				<input type='text' placeholder='Enter a clue'></input><input type='number' value='1'></input>
+				<input type='button' id='join' value='Submit'></input>
+			</form>
+		</div>
+	</div>
+	<div id="pastClues">
+		<p class='hamburger'>&#9776;</p><p>Past Clues</p>
+	</div>
+	<div id="chat">
+		<p class='hamburger'>&#9776;</p><p>Chat</p>
+	</div>
+	
+</body>
+</html>

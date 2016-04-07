@@ -1,10 +1,9 @@
 SpyWords
 ========
+A card-based, word-association, guessing game traditionally played with 4 people
 
 Overview:
 ---------
-A card-based, word-association, guessing game traditionally played with 4 people
-
 From the rulebook:
 “Spymasters know the secret identities of 25 agents. Their teammates, the field operatives, 
 know the agents only by their codenames. 
