@@ -115,12 +115,13 @@ db.once('open', function() {
                         gameOver: false
                     });
 
-                    game.save();
+                    //game.save();
 
                     response.render('mock_game.html', card_data);
                 });
             } else {
-                response.redirect('/');
+                var card_data = { 'cards' : g['cards'] };
+                response.render('mock_game.html', card_data);
             }
         });
     });
@@ -128,7 +129,7 @@ db.once('open', function() {
     // Catchall page - Home
     app.get('*', function(request, response){
         // Display the home screen
-        response.render('mock_home.html');
+        response.render('home.html');
     });
 
 

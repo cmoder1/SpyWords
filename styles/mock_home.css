@@ -20,7 +20,7 @@ p {
     margin: 7px;
 }
 
-#formPrompt, #uniquePrompt {
+#formPrompt, #uniquePrompt, #existsPrompt {
 	display: none;
 	color: red;
 	margin-bottom: 0px;
@@ -28,7 +28,7 @@ p {
 
 p#rules {
 	margin: 10vh auto;
-	width: 100px;
+	width: 200px;
 	font-size: 12pt;
 	text-decoration: underline;
 	color: #225ea8;

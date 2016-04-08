@@ -16,18 +16,20 @@ window.addEventListener('load', function(){
 		if (username.split(' ').join('') !== '' && gamename.split(' ').join('') !== '') {
 			socket.emit('validateName', gamename, function(valid) {
 				if (valid) {
-					console.log('valid');
+					//console.log('valid');
 					$('#uniquePrompt').css('display', 'none');
 					$('#newGameSetup').css('display', 'block');
 				} else {
-					console.log('invalid');
+					//console.log('invalid');
 					$('#uniquePrompt').css('display', 'block');
 				}
 				$('#formPrompt').css('display', 'none');
+				$('#existsPrompt').css('display', 'none');
 			});
 		} else {
 			$('#formPrompt').css('display', 'block');
 			$('#uniquePrompt').css('display', 'none');
+			$('#existsPrompt').css('display', 'none');
 		}
 	});
 
@@ -38,9 +40,24 @@ window.addEventListener('load', function(){
 		var username = $('#username').val();
 		var gamename = $('#gamename').val();
 		if (username.split(' ').join('') !== '' && gamename.split(' ').join('') !== '') {
-			$('#joinGameSetup').css('display', 'block');
+			socket.emit('validateName', gamename, function(unique) {
+				if (!unique) {
+					$('#existsPrompt').css('display', 'none');
+					$('#joinGameSetup').css('display', 'block');
+				} else {
+					$('#existsPrompt').css('display', 'block');
+				}
+				$('#formPrompt').css('display', 'none');
+				$('#uniquePrompt').css('display', 'none');
+			});
+		} else {
+			$('#formPrompt').css('display', 'block');
+			$('#existsPrompt').css('display', 'none');
+			$('#uniquePrompt').css('display', 'none');
 		}
 	});
+
+
 	$('#create').on('click', function(){
 		var username = $('#username').val();
 		var gamename = $('#gamename').val();
