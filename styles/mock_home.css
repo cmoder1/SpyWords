@@ -20,6 +20,12 @@ p {
     margin: 7px;
 }
 
+#formPrompt, #uniquePrompt {
+	display: none;
+	color: red;
+	margin-bottom: 0px;
+}
+
 p#rules {
 	margin: 10vh auto;
 	width: 100px;

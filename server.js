@@ -26,7 +26,7 @@ app.use('/styles', express.static('styles'));
 
 
 /* ========================================================
- * ==================  MongoDB Database  ==================
+ * ================ Connect to Database  ==================
  * ======================================================== */
 
 var db = mongoose.connection;
@@ -44,6 +44,8 @@ db.once('open', function() {
         cards: [{ word: String, team: String, guessed: Boolean }],
         players: [{ name: String, team: String, role: String }],
         turn: String,
+        clueTimer: String,
+        guessTimer: String,
         gameOver: Boolean
     });
 
@@ -57,6 +59,17 @@ db.once('open', function() {
         // clients emit this when they join new rooms
         socket.on('join', function(){
             console.log('TODO');
+        });
+
+        socket.on('validateName', function(gameID, callback) {
+            Game.find({ gameID: gameID }, function(err, g) {
+                //console.log(g);
+                if (g.length === 0) {
+                    callback(true);
+                } else {
+                    callback(false);
+                }
+            });
         });
 
         // the client disconnected/closed their browser window
@@ -97,6 +110,8 @@ db.once('open', function() {
                         cards: card_data['cards'],
                         players: [],
                         turn: 'BSM',
+                        clueTimer: '02:45',
+                        guessTimer: '02:30',
                         gameOver: false
                     });
 

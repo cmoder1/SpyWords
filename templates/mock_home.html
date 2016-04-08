@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>CodeNames</title>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="../scripts/mock_home.js" type="text/javascript"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <link rel="stylesheet" href="../styles/mock_home.css" type="text/css" />
@@ -13,7 +14,8 @@
 	<p>Enter game information:</p>
 	<input type='text' id='username' placeholder='Username'></input>
 	<input type='text' id='gamename' placeholder='Game Name'></input>
-	<br>
+	<p id="formPrompt">You must enter a nickname and game name</p>
+	<p id="uniquePrompt">Your game name is already in use</p>
 	<button type='button' id='newGame'><span class='name1'>Create</span> <span class='name2'>Game</span></button>
 	<button type='button' id='joinGame'><span class='name1'>Join</span> <span class='name2'>Game</span></button>
 	<p id='rules'>How to play</p>
