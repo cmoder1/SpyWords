@@ -43,6 +43,7 @@ db.once('open', function() {
         gameID: String,
         cards: [{ word: String, team: String, guessed: Boolean }],
         players: [{ name: String, team: String, role: String }],
+        roles: [String],
         turn: String,
         clueTimer: String,
         guessTimer: String,
@@ -61,6 +62,11 @@ db.once('open', function() {
             console.log('TODO');
         });
 
+        socket.on('joinHome', function(callback){
+            socket.join('Home');
+            callback();
+        });
+
         socket.on('validateName', function(gameID, callback) {
             Game.find({ gameID: gameID }, function(err, g) {
                 //console.log(g);
@@ -69,6 +75,55 @@ db.once('open', function() {
                 } else {
                     callback(false);
                 }
+            });
+        });
+
+        socket.on('getRoles', function(gameID, callback) {
+            Game.findOne({ gameID: gameID }, function(err, g) {
+                //console.log(g);
+                callback(g.roles);
+            });
+        });
+
+        socket.on('createGame', function(gameID, username, claimedRole, clueTime, guessTime, callback) {
+            generateWords(function(words) {
+
+                var teams = assignCards();
+                var card_data = { 'cards' : [] };
+
+                for (var i=0; i<words.length; i++) {
+                    card_data['cards'].push({ 'word': words[i], 'team': teams[i], 'guessed': false });
+                }
+
+                var roles = ['BSM', 'BFA', 'RSM', 'RFA'];
+                roles.splice(roles.indexOf(claimedRole), 1);
+
+                var game = new Game({
+                    gameID: gameID,
+                    cards: card_data['cards'],
+                    players: [{ name: username, team: claimedRole[0], role: claimedRole }],
+                    roles: roles,
+                    turn: 'BSM',
+                    clueTimer: clueTime,//'02:45',
+                    guessTimer: guessTime,//'02:30',
+                    gameOver: false
+                });
+
+                game.save();
+
+                callback();
+                //response.render('mock_game.html', card_data);
+            });
+        });
+
+        socket.on('joinGame', function(gameID, username, claimedRole, callback) {
+            Game.findOne({ gameID: gameID }, function(err, g) {
+                var p = { name: username, team: claimedRole[0], role: claimedRole };
+                g.players.push(p);
+                g.roles.splice(g.roles.indexOf(claimedRole), 1);
+                g.save();
+                io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
+                callback();
             });
         });
 
@@ -94,7 +149,7 @@ db.once('open', function() {
             //console.log('Found!');
             //console.log(g['gameID']);
 
-            if (g === [] || g === null) {
+            if (g === null) {
                 //console.log('Creating a game!');
                 generateWords(function(words) {
 
@@ -109,6 +164,7 @@ db.once('open', function() {
                         gameID: gameID,
                         cards: card_data['cards'],
                         players: [],
+                        roles: ['BSM', 'BFA', 'RSM', 'RFA'],
                         turn: 'BSM',
                         clueTimer: '02:45',
                         guessTimer: '02:30',
@@ -122,6 +178,12 @@ db.once('open', function() {
             } else {
                 var card_data = { 'cards' : g['cards'] };
                 response.render('mock_game.html', card_data);
+                //temp = g.roles;
+                //temp.splice(temp.indexOf('RSM'),1);
+                // TODO: Actually update the game object
+                //g.roles = temp;
+                //g.save();
+                //io.sockets.in('Home').emit('roleUpdate', g.gameID, temp);
             }
         });
     });

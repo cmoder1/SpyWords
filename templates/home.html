@@ -27,13 +27,15 @@
 			<p>Number of Players:</p><input type='number' value='4'></input>
 			<p>Your Role:</p>
 			<select id="role" name="roles">
-				<option value="spy1">Red Team: Spy Master</option>
-				<option value="guess1">Red Team: Guesser</option>
-				<option value="spy2">Blue Team: Spy Master</option>
-				<option value="guess2">Blue Team: Guesser</option>
+				<option value="RSM">Red Team: Spy Master</option>
+				<option value="RFA">Red Team: Guesser</option>
+				<option value="BSM">Blue Team: Spy Master</option>
+				<option value="BFA">Blue Team: Guesser</option>
 			</select>
-			<p>Clue Timer:</p><input type='number' id='clueMins' value='2' />:<input type='number' id='clueSecs' value='30' />
-			<p>Guess Timer:</p><input type='number' id='guessMins' value='2' />:<input type='number' id='guessSecs' value='00' />
+			<p>Clue Timer:</p><input type='number' class='mins' id='clueMins' value='2' />:
+			<input type='number' class='secs' id='clueSecs' value='30' />
+			<p>Guess Timer:</p><input type='number' class='mins' id='guessMins' value='2' />:
+			<input type='number' class='secs' id='guessSecs' value='00' />
 			<input type='button' id='create' value='Create'></input>
 		</form>
 	</div>
@@ -42,10 +44,10 @@
 		<form>
 			<p>Your Role:</p>
 			<select id="role2" name="roles">
-				<option value="spy1">Red Team: Spy Master</option>
-				<option value="guess1">Red Team: Guesser</option>
-				<option value="spy2">Blue Team: Spy Master</option>
-				<option value="guess2">Blue Team: Guesser</option>
+				<option value="RSM">Red Team: Spy Master</option>
+				<option value="RFA">Red Team: Guesser</option>
+				<option value="BSM">Blue Team: Spy Master</option>
+				<option value="BFA">Blue Team: Guesser</option>
 			</select>
 			<input type='button' id='join' value='Join'></input>
 		</form>

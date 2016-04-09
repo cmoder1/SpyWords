@@ -33,6 +33,25 @@ window.addEventListener('load', function(){
 		}
 	});
 
+	/*
+	 * Filling out create game form 
+	 */
+	$('.secs').blur(function(e){
+		var seconds = 1*e.target.value;//1*$('#clueSecs').val();
+		if (seconds < 10) {
+			e.target.value = ('0'+seconds);
+		}
+		if (seconds < 0 || seconds > 59) {
+			e.target.value = ('00');
+		}
+	});
+	$('.mins').blur(function(e){
+		var minutes = e.target.value;//1*$('#clueSecs').val();
+		if (minutes < 1 || minutes > 9) {
+			e.target.value = ('1');
+		}
+	});
+
 	/* Join Game button:
 	 * ensure that the game name already exists before prompting to join
 	 */
@@ -44,6 +63,7 @@ window.addEventListener('load', function(){
 				if (!unique) {
 					$('#existsPrompt').css('display', 'none');
 					$('#joinGameSetup').css('display', 'block');
+					socket.emit('getRoles', gamename, updateRoles);
 				} else {
 					$('#existsPrompt').css('display', 'block');
 				}
@@ -57,16 +77,28 @@ window.addEventListener('load', function(){
 		}
 	});
 
+	socket.on('roleUpdate', function(gameID, roles) {
+		if ($('#gamename').val() === gameID) {
+			updateRoles(roles);
+		}
+	});
+
 
 	$('#create').on('click', function(){
 		var username = $('#username').val();
 		var gamename = $('#gamename').val();
-		location.href='/'+gamename;
+		socket.emit('createGame', gamename, username, $('#role').val(), $('#clueMins').val()+':'+$('#clueSecs').val(),
+			$('#guessMins').val()+':'+$('#guessSecs').val(), function() {
+				location.href='/'+gamename;
+			});
 	});
+
 	$('#join').on('click', function(){
 		var username = $('#username').val();
 		var gamename = $('#gamename').val();
-		location.href='/'+gamename;
+		socket.emit('joinGame', gamename, username, $('#role2').val(), function(){
+			location.href='/'+gamename;
+		});
 	});
 
 	$('.close').on('click', function(){
@@ -78,3 +110,19 @@ window.addEventListener('load', function(){
 	});
 
 }, false);
+
+
+
+function updateRoles(roles) {
+	var translations = {
+		'BSM': 'Blue Spy Master',
+		'BFA': 'Blue Field Agent',
+		'RSM': 'Red Spy Master',
+		'RFA': 'Red Field Agent'
+	}
+	$('#role2').empty();
+	for (var i=0; i<roles.length; i++) {
+		$('#role2').html($('#role2').html()+
+			'<option value="'+roles[i]+'">'+translations[roles[i]]+'</option>');
+	}
+}
