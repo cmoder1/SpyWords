@@ -3,12 +3,12 @@ var fs = require('fs');
 var http = require('http'); 
 var express = require('express');
 var	bodyParser = require('body-parser');
-var anyDB = require('any-db');
+//var anyDB = require('any-db');
 var engines = require('consolidate');
 var mongoose = require('mongoose');
 
 // Prepare variables
-var conn = anyDB.createConnection('sqlite3://codenames.db');
+//var conn = anyDB.createConnection('sqlite3://codenames.db');
 var app = express(); 
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
@@ -67,6 +67,9 @@ db.once('open', function() {
             callback();
         });
 
+        // TODO
+        // Check to see if the game is already full
+        // ........
         socket.on('validateName', function(gameID, callback) {
             Game.find({ gameID: gameID }, function(err, g) {
                 //console.log(g);
@@ -117,14 +120,29 @@ db.once('open', function() {
         });
 
         socket.on('joinGame', function(gameID, username, claimedRole, callback) {
+            if (claimedRole === null) {
+                callback(true);
+                return;
+            } 
+
             Game.findOne({ gameID: gameID }, function(err, g) {
+                callback(g.roles.length === 0, claimedRole);
                 var p = { name: username, team: claimedRole[0], role: claimedRole };
                 g.players.push(p);
                 g.roles.splice(g.roles.indexOf(claimedRole), 1);
                 g.save();
                 io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
-                callback();
             });
+        });
+
+        socket.on('waiting', function(gameID, role, callback) {
+            socket.join(gameID);
+            socket.gameID = gameID;
+            socket.role = role;
+            var clients = io.sockets.adapter.rooms[gameID];
+            if (clients.length === 4) {
+                io.sockets.in(gameID).emit('startGame');
+            }
         });
 
         // the client disconnected/closed their browser window
@@ -136,48 +154,30 @@ db.once('open', function() {
     });
 
     /* ========================================================
-     * ================  Access Home/Chatroom  ================
+     * ==================  Go to a Game Page  =================
      * ======================================================== */
 
     // URL to access a specified chatroom
-    app.get('/:gameID', function(request, response){
+    app.get('/:gameID/:role', function(request, response){
         //console.log('Creating a game!');
         // Send the user to a game
         var gameID = request.params.gameID;
+        var role = request.params.role;
 
         Game.findOne({ gameID: gameID }, function(err, g) {
             //console.log('Found!');
             //console.log(g['gameID']);
 
             if (g === null) {
-                //console.log('Creating a game!');
-                generateWords(function(words) {
-
-                    var teams = assignCards();
-                    var card_data = { 'cards' : [] };
-
-                    for (var i=0; i<words.length; i++) {
-                        card_data['cards'].push({ 'word': words[i], 'team': teams[i], 'guessed': false });
-                    }
-
-                    var game = new Game({
-                        gameID: gameID,
-                        cards: card_data['cards'],
-                        players: [],
-                        roles: ['BSM', 'BFA', 'RSM', 'RFA'],
-                        turn: 'BSM',
-                        clueTimer: '02:45',
-                        guessTimer: '02:30',
-                        gameOver: false
-                    });
-
-                    //game.save();
-
-                    response.render('mock_game.html', card_data);
-                });
+                console.log('This game has not been created!');
+                response.redirect('/');
             } else {
-                var card_data = { 'cards' : g['cards'] };
-                response.render('mock_game.html', card_data);
+                var game_data = { gameID: gameID, role: role, cards: g['cards'] };
+                if (role === 'BSM' || role === 'RSM') {
+                    response.render('spyMaster.html', game_data);
+                } else {
+                    response.render('fieldAgent.html', game_data);
+                }
                 //temp = g.roles;
                 //temp.splice(temp.indexOf('RSM'),1);
                 // TODO: Actually update the game object

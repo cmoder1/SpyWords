@@ -89,15 +89,19 @@ window.addEventListener('load', function(){
 		var gamename = $('#gamename').val();
 		socket.emit('createGame', gamename, username, $('#role').val(), $('#clueMins').val()+':'+$('#clueSecs').val(),
 			$('#guessMins').val()+':'+$('#guessSecs').val(), function() {
-				location.href='/'+gamename;
+				location.href='/'+gamename+'/'+$('#role').val();
 			});
 	});
 
 	$('#join').on('click', function(){
 		var username = $('#username').val();
 		var gamename = $('#gamename').val();
-		socket.emit('joinGame', gamename, username, $('#role2').val(), function(){
-			location.href='/'+gamename;
+		socket.emit('joinGame', gamename, username, $('#role2').val(), function(full, role){
+			if (full) {
+				$('.setup').css('display', 'none');
+			} else {
+				location.href='/'+gamename+'/'+role;
+			}
 		});
 	});
 

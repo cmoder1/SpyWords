@@ -20,7 +20,7 @@ p {
     margin: 7px;
 }
 
-#formPrompt, #uniquePrompt, #existsPrompt {
+#formPrompt, #uniquePrompt, #existsPrompt, #fullPrompt {
 	display: none;
 	color: red;
 	margin-bottom: 0px;
