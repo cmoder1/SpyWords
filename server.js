@@ -24,6 +24,9 @@ app.use('/scripts', express.static('scripts'));
 app.use('/styles', express.static('styles'));
 
 
+// heroku code
+app.set('port', (process.env.PORT || 5000));
+
 
 /* ========================================================
  * ================ Connect to Database  ==================
@@ -199,7 +202,8 @@ db.once('open', function() {
     // to server.listen(8080);
 
     // Set up the listener and make the table of messages once done
-    server.listen(8080, function() {
+    //server.listen(8080, function() {
+    server.listen(app.get('port'), function() {
         /*conn.query('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT,'+
             ' room TEXT, nickname TEXT, body TEXT, time INTEGER);')
         .on('end', function(){
