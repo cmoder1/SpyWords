@@ -45,6 +45,7 @@ db.once('open', function() {
     var gameSchema = new mongoose.Schema({
         gameID: String,
         cards: [{ word: String, team: String, guessed: Boolean }],
+        numPlayers: Number,
         players: [{ name: String, team: String, role: String }],
         roles: [String],
         turn: String,
@@ -91,7 +92,7 @@ db.once('open', function() {
             });
         });
 
-        socket.on('createGame', function(gameID, username, claimedRole, clueTime, guessTime, callback) {
+        socket.on('createGame', function(gameID, username, claimedRole, numPlayers, clueTime, guessTime, callback) {
             generateWords(function(words) {
 
                 var teams = assignCards();
@@ -102,11 +103,19 @@ db.once('open', function() {
                 }
 
                 var roles = ['BSM', 'BFA', 'RSM', 'RFA'];
+                if (numPlayers === '2') {
+                    if (claimedRole[0] === 'B') {
+                        roles = ['BSM', 'BFA'];
+                    } else {
+                        roles = ['RSM', 'RFA'];
+                    }
+                }
                 roles.splice(roles.indexOf(claimedRole), 1);
 
                 var game = new Game({
                     gameID: gameID,
                     cards: card_data['cards'],
+                    numPlayers: numPlayers,
                     players: [{ name: username, team: claimedRole[0], role: claimedRole }],
                     roles: roles,
                     turn: 'BSM',
@@ -148,10 +157,12 @@ db.once('open', function() {
             socket.join(gameID);
             socket.gameID = gameID;
             socket.role = role;
-            var clients = io.sockets.adapter.rooms[gameID];
-            if (clients.length === 4) {
-                io.sockets.in(gameID).emit('startGame');
-            }
+            Game.findOne({ gameID: gameID }, function(err, g) {
+                //var clients = io.sockets.adapter.rooms[gameID];
+                if (g.players.length === g.numPlayers) {//clients.length === 4) {
+                    io.sockets.in(gameID).emit('startGame');
+                }
+            })
         });
 
         // the client disconnected/closed their browser window

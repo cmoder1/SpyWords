@@ -87,8 +87,8 @@ window.addEventListener('load', function(){
 	$('#create').on('click', function(){
 		var username = $('#username').val();
 		var gamename = $('#gamename').val();
-		socket.emit('createGame', gamename, username, $('#role').val(), $('#clueMins').val()+':'+$('#clueSecs').val(),
-			$('#guessMins').val()+':'+$('#guessSecs').val(), function() {
+		socket.emit('createGame', gamename, username, $('#role').val(), $('#numPlayers').val(), 
+			$('#clueMins').val()+':'+$('#clueSecs').val(), $('#guessMins').val()+':'+$('#guessSecs').val(), function() {
 				location.href='/'+gamename+'/'+$('#role').val();
 			});
 	});
@@ -118,6 +118,7 @@ window.addEventListener('load', function(){
 
 
 function updateRoles(roles) {
+	console.log(roles);
 	var translations = {
 		'BSM': 'Blue Spy Master',
 		'BFA': 'Blue Field Agent',

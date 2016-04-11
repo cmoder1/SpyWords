@@ -24,13 +24,18 @@
 	<div class='setup' id='newGameSetup'>
 		<p class='close'>X</p>
 		<form>
-			<p>Number of Players:</p><input type='number' value='4'></input>
+			<p>Number of Players:</p>
+			<!--<input type='number' id='numPlayers' value='4'></input>-->
+			<select id="numPlayers" name="numPlayers">
+				<option value="4">4</option>
+				<option value="2">2</option>
+			</select>
 			<p>Your Role:</p>
 			<select id="role" name="roles">
-				<option value="RSM">Blue Spy Master</option>
-				<option value="RFA">Blue Field Agent</option>
-				<option value="BSM">Red Spy Master</option>
-				<option value="BFA">Red Field Agent</option>
+				<option value="BSM">Blue Spy Master</option>
+				<option value="BFA">Blue Field Agent</option>
+				<option value="RSM">Red Spy Master</option>
+				<option value="RFA">Red Field Agent</option>
 			</select>
 			<p>Clue Timer:</p><input type='number' class='mins' id='clueMins' value='2' />:
 			<input type='number' class='secs' id='clueSecs' value='30' />

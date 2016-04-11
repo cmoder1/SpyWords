@@ -120,6 +120,10 @@ select {
 	background-color: rgba(255,255,255,0.5);
 }
 
+#numPlayers {
+	width: 50px;
+}
+
 [type="button"] {
 	transition: box-shadow 0.3s, border 0.3s;
     cursor: pointer;
