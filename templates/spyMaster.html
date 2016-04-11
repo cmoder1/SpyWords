@@ -3,7 +3,7 @@
 <head>
     <title>CodeNames</title>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="../scripts/spyMaster.js" type="text/javascript"></script>
+    <script src="../scripts/game.js" type="text/javascript"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <link rel="stylesheet" href="../styles/mock_game.css" type="text/css" />
     <link href='https://fonts.googleapis.com/css?family=Exo:400,200italic' rel='stylesheet' type='text/css'>
@@ -29,10 +29,10 @@
 		</div>
 		<div id="turnOrder">
 			<p>Turn Order:</p>
-			<div class="role blueTeam" id="p1"><p>Me</p></div>
-			<div class="role blueTeam" id="p2"><p>Sarah</p></div>
-			<div class="role redTeam" id="p3"><p>David</p></div>
-			<div class="role redTeam" id="p4"><p>Kate</p></div>
+			<div class="role blueTeam" id="BSM"><p>-</p></div>
+			<div class="role blueTeam" id="BFA"><p>-</p></div>
+			<div class="role redTeam" id="RSM"><p>-</p></div>
+			<div class="role redTeam" id="RFA"><p>-</p></div>
 		</div>
 		<div id="clueEntry">
 			<form id="clueSubmission">

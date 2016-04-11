@@ -101,6 +101,16 @@ window.addEventListener('load', function(){
 		console.log('Entered the game');
 	});
 
+	socket.emit('getPlayers', meta('gameID'), function(players) {
+		for (var i=0; i<players.length; i++) {
+			$('#'+players[i].role).html('<p>'+players[i].name+'</p>');
+		}
+	});
+
+	socket.on('newPlayer', function(role, name) {
+		$('#'+role).html('<p>'+name+'</p>');
+	});
+
 }, false);
 
 // Helper to retrieve page meta data

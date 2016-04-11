@@ -3,7 +3,7 @@
 <head>
     <title>CodeNames</title>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="../scripts/fieldAgent.js" type="text/javascript"></script>
+    <script src="../scripts/game.js" type="text/javascript"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <link rel="stylesheet" href="../styles/mock_game.css" type="text/css" />
     <link href='https://fonts.googleapis.com/css?family=Exo:400,200italic' rel='stylesheet' type='text/css'>
@@ -29,15 +29,16 @@
 		</div>
 		<div id="turnOrder">
 			<p>Turn Order:</p>
-			<div class="role blueTeam" id="p1"><p>Me</p></div>
-			<div class="role blueTeam" id="p2"><p>Sarah</p></div>
-			<div class="role redTeam" id="p3"><p>David</p></div>
-			<div class="role redTeam" id="p4"><p>Kate</p></div>
+			<div class="role blueTeam" id="BSM"><p>-</p></div>
+			<div class="role blueTeam" id="BFA"><p>-</p></div>
+			<div class="role redTeam" id="RSM"><p>-</p></div>
+			<div class="role redTeam" id="RFA"><p>-</p></div>
 		</div>
 		<div id="clueEntry">
+			<p>Clue:</p>
+			<p id="clue"></p>
 			<form id="clueSubmission">
-				<input type='text' placeholder='Enter a clue'></input><input type='number' value='1'></input>
-				<input type='button' id='join' value='Submit'></input>
+				<input type='button' id='join' value='Done'></input>
 			</form>
 		</div>
 	</div>

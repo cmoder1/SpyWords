@@ -265,6 +265,21 @@ h2 {
 	position: relative;
 	top: 52px;
 	font-size: 10pt;
+	overflow: hidden;
+}
+
+#BSM, #RSM {
+	background-image: url('spy.png');
+    background-position: 5px 5px;
+    background-size: 45px;
+    background-repeat: no-repeat;
+}
+
+#BFA, #RFA {
+	background-image: url('question.svg');
+    background-position: 5px 5px;
+    background-size: 45px;
+    background-repeat: no-repeat;
 }
 
 .blueTeam {
@@ -275,8 +290,8 @@ h2 {
 	background-color: rgba(202,0,32,0.6);
 }
 
-#p3 {
-	background-color: rgba(202,0,32,1);
+#BSM {
+	background-color: rgba(5,113,176,1);
 	box-shadow: 0 0 7px 3px white;
 }
 
@@ -288,6 +303,14 @@ h2 {
 #clueEntry [type='button']:hover{
 	background-color: rgba(122,1,119,0.6);
 	box-shadow: 0 0 5px 1px white;
+}
+
+#clue {
+    display: inline-block;
+    width: 60%;
+    background-color: rgb(255,255,222);
+    height: 40px;
+    border-radius: 12px;
 }
 
 #pastClues {

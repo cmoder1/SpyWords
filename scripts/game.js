@@ -30,6 +30,10 @@ window.addEventListener('load', function(){
 		*/
 
 		var spymasterView = true;
+		var role = meta('role');
+		if (role === 'BFA' || role === 'RFA') {
+			spymasterView = false;
+		}
 
 		if (spymasterView) {
 			// BOX SHADOW STYLE

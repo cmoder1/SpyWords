@@ -25,7 +25,7 @@ app.use('/styles', express.static('styles'));
 
 
 // heroku code
-app.set('port', (process.env.PORT || 5000));
+app.set('port', (process.env.PORT || 8080));
 
 
 /* ========================================================
@@ -115,9 +115,8 @@ db.once('open', function() {
                     gameOver: false
                 });
 
-                game.save();
+                game.save(callback);
 
-                callback();
                 //response.render('mock_game.html', card_data);
             });
         });
@@ -135,6 +134,13 @@ db.once('open', function() {
                 g.roles.splice(g.roles.indexOf(claimedRole), 1);
                 g.save();
                 io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
+                io.sockets.in(gameID).emit('newPlayer', claimedRole, username);
+            });
+        });
+
+        socket.on('getPlayers', function(gameID, callback) {
+            Game.findOne({ gameID: gameID }, function(err, g) {
+                callback(g.players);
             });
         });
 
