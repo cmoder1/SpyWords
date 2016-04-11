@@ -54,16 +54,46 @@
 	</div>
 	<div class='setup' id='howToPlay'>
 		<p class='close'>X</p>
-		<h2>Rules:</h2>
-		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean auctor consectetur magna id interdum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ullamcorper turpis vitae nibh feugiat commodo. Ut condimentum, neque vitae ullamcorper hendrerit, est neque aliquam turpis, ac sollicitudin erat tortor in dui. Donec ex nibh, pulvinar et mi ut, finibus pellentesque libero. Morbi in sollicitudin enim. Ut vitae orci nisl. Etiam vel consequat mi. Morbi ac ex eu felis vehicula congue. Curabitur lacus nibh, bibendum in tincidunt rhoncus, ultrices ac sem. Nam non ipsum tincidunt, volutpat arcu sed, tristique orci.
+		<h2>Rules</h2>
+		<h4>Setup:</h4>
+		<p>From the home page either start a new game or join an existing game using a unique game name. In the standard game there are two teams &mdash; blue and red &mdash; with a <strong>spymaster</strong> and <strong>field operative</strong> on each team. The board consists of 25 codenames arranged in a 5-by-5 grid. The spymaster's codenames will be color-coded such that blue squares correspond to words that the Blue Team must guess (blue agents), and red squares correspond to words that the Red Team must guess (red agents). Pale squares are innocent bystanders, and the black square is an assassin who should never be contacted at all! The starting team has 9 words to guess. The other team has 8. The starting team will give the first clue of the game.</p>
 
-		Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec nisi lacus, ullamcorper vel massa nec, pharetra molestie nisi. Fusce maximus nisi arcu, ultrices aliquet elit ultrices quis. Maecenas placerat tellus vel velit scelerisque, dictum porttitor elit ullamcorper. Nunc condimentum pharetra elit nec dictum. Quisque nec porta odio. Nam nec posuere risus, at ultricies mauris. Vestibulum accumsan nunc at sapien cursus lobortis. Ut at purus pharetra, pharetra lorem ac, efficitur orci. Cras tempor et leo non fermentum. Ut sed risus in odio molestie commodo sed a purus. Nullam ultrices, risus sit amet condimentum elementum, ante est porta diam, vel efficitur nunc ipsum ut felis. Sed commodo sapien quis enim aliquam aliquam. Sed ac sollicitudin orci. Mauris sagittis fermentum orci, at pellentesque arcu lacinia lobortis. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+		<h4>Game Overview:</h4>
+		<p>Spymasters know the secret identities of 25 agents. Their teammates know the agents only by their codenames.
+		Spymasters take turns giving one-word clues. A clue may relate to multiple words on the table. The field
+		operatives try to guess which words their spymaster meant. When a field operative clicks a word, its secret identity
+		will be revealed. If the field operatives guess correctly, they may continue guessing,
+		until they run out of ideas for the given clue or until they hit a wrong person. Then it is the other team's
+		turn to give a clue and guess. The first team to contact all their agents wins the game.</p>
 
-		Aliquam venenatis tortor metus, vitae tincidunt neque pretium vitae. Nulla molestie justo ut arcu faucibus, eu fringilla enim auctor. Aliquam eleifend sit amet ligula quis mollis. Sed auctor, eros vitae commodo convallis, est nunc ullamcorper eros, vel interdum libero orci eu ante. Fusce vestibulum lacus eget dolor laoreet, quis vestibulum turpis rhoncus. Vivamus suscipit sem ut interdum ullamcorper. Pellentesque et elit sit amet purus viverra pellentesque sollicitudin ac felis. Morbi mollis felis vitae sem tincidunt, a consectetur velit rhoncus. In vel orci metus. Praesent vestibulum diam eu lorem elementum, a blandit quam aliquam.
+		<h4>Spymaster's Turn:</h4>
+		<p>The blue spymaster starts the game by thinking of a <strong>one-word</strong> clue that relates to some of the words your team is trying to guess. You also provide a number, which tells your teammates how many codenames are related to your clue.
+		<br><em>Example: Two of your words are NUT and BARK. These grow on trees, so you say tree: 2.</em></p>
 
-		Mauris vitae nisl sagittis nisi pretium tristique at vitae tortor. Morbi et varius felis. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aliquam fringilla risus sed tempus viverra. Curabitur posuere tempor viverra. Suspendisse lorem est, dignissim nec viverra sit amet, varius at ipsum. Etiam vel metus accumsan, suscipit risus sed, aliquet ex. Quisque feugiat est id quam accumsan tempus. Ut vitae urna metus. Cras tristique risus eget ipsum facilisis rhoncus. Sed non mauris non mi vulputate pharetra a id justo.
+		<h4>Field Operative's Turn:</h4>
+		<p>The field operative follows by clicking on words that relate to their spymaster's clue. If they correctly guess
+			a word belonging to their team, they may click DONE, or guess again until they've guessed up to the number of
+			times as the clue's number. If at any time they click an innocent or opposing team's card, the turn immediately
+			switches to the next team's spymaster. If the assassin is selected, their team loses the game.</p>
 
-		Ut ac diam dictum metus ultrices dictum. Phasellus quis justo tellus. Integer consequat ligula quis magna suscipit mollis. Duis cursus pharetra purus, quis rhoncus leo sollicitudin sit amet. Interdum et malesuada fames ac ante ipsum primis in faucibus. Suspendisse elementum, nisi vel hendrerit lobortis, diam sapien ultricies nunc, in dapibus lectus diam et justo. Vestibulum bibendum nulla at lacus ullamcorper, at cursus tortor eleifend. Curabitur vel massa rhoncus, volutpat sapien et, molestie leo. Donec congue bibendum nulla sit amet pretium.</p>
+		<h4>Field Operative's Turn:</h4>
+		<p>The field operative follows by clicking on words that relate to their spymaster's clue. If they correctly guess
+			a word belonging to their team, they may click DONE, or guess again until they've guessed up to the number of
+			times as the clue's number. If at any time they click an innocent or opposing team's card, the turn immediately
+			switches to the next team's spymaster. If the assassin is selected, their team loses the game.</p>
+
+		<h4>Time Limit:</h4>
+		<p>When creating a game, a time limit is set for the spymaster and field operatives. If the spymaster exceeds their
+		time, whatever is entered in the clue input box will be sent. If the field operative's time runs out, the turn ends
+		and switches over to the other team.</p>
+
+		<h4>Clue Restrictions:</h4> 
+		<p>The one-word clue cannot contain within itself any of the remaining words on the board. If a word has already
+			been guessed, it may be used in a clue.</p><br><br>
+
+		<h2>Privacy Policy</h2>
+		<p>All input is stored temporarily, but only for the duration of the game. Do not provide sensitive information
+			anywhere on this site.</p>
 	</div>
 	
 </body>

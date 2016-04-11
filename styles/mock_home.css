@@ -186,9 +186,15 @@ select {
 #howToPlay {
 	top: 10vh;
 	height: 70vh;
-	width: 500px;
-	margin-left: -285px;
+	width: 700px;
+	margin-left: -385px;
 	overflow: scroll;
+}
+
+#howToPlay h4 {
+	border-bottom: 1px solid rgba(0,0,0,0.2);
+	margin: 0px;
+	padding: 5px;
 }
 
 #howToPlay p {
