@@ -26,7 +26,7 @@
 	<div id="controls">
 		<h2><span id='redScore'>8</span> - <span id='blueScore'>9</span></h2>
 		<div id="timer">
-			<p><span id='minutes'>2</span>:<span id='seconds'>30</span></p>
+			<p><span id='minutes'>0</span>:<span id='seconds'>00</span></p>
 		</div>
 		<div id="turnOrder">
 			<p>Turn Order:</p>
@@ -37,8 +37,9 @@
 		</div>
 		<div id="clueEntry">
 			<form id="clueSubmission">
-				<input type='text' placeholder='Enter a clue'></input><input type='number' value='1'></input>
-				<input type='button' id='join' value='Submit'></input>
+				<input type='text' id="clueWord" placeholder='Enter a clue'></input>
+				<input type='number' id="clueNum" value='1'></input>
+				<input type='button' id='submitClue' value='Submit'></input>
 			</form>
 		</div>
 	</div>

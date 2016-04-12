@@ -5,7 +5,12 @@ window.addEventListener('load', function(){
 	
 	socket.on('startGame', function(turn, timer) { 
 		console.log('Game Started');
-		var interv = window.setInterval(timeTick, 1000);
+		$('#minutes').html(timer.split(':')[0]);
+		$('#seconds').html(timer.split(':')[1]);
+
+		$('#timer p').css('color', 'black');
+		clearInterval(interv);
+		interv = window.setInterval(timeTick, 1000);
 
 		displayTurn(turn);
 		setMeta('currentTurn', turn);
@@ -38,7 +43,7 @@ window.addEventListener('load', function(){
 			$('.card').css('box-shadow', '0 0 5px 2px #ffea9f');
 		}
 
-		// CLICKING CARDS:
+		/*
 		$('.red').on('click', function(e){
 			$('#redScore').html($('#redScore').html()*1 - 1);
 
@@ -89,6 +94,42 @@ window.addEventListener('load', function(){
 		});
 
 		$('.assassin').on('click', function() { alert('Game Over!') });
+
+		*/
+	});
+
+	// Set this once and then don't alter it... only alter the time displayed in the clock
+	var interv = window.setInterval(function(){}, 1000);
+	// CLICKING CARDS:
+	$('.card').on('click', function(e) {
+		var role = meta('role');
+		if ((role === 'BFA' || role === 'RFA') && meta('role')[0] === meta('currentTurn')[0]) {
+			console.log('ITS MY TURN');
+			var card = e.target;
+			var word = '';
+			if (card.tagName === 'DIV') {
+				word = $($(card).children()[0]).html();
+			} else {
+				word = $(card).html();
+			}
+			console.log(word);
+			//socket.emit('cardClick', ...) // Perhaps give each card an ID to pass along
+		}
+	});
+
+	$('#submitClue').on('click', function() {
+		// TODO: check if it is really your turn
+		var clue = $('#clueWord').val();
+		var num = $('#clueNum').val();
+		if (clue.split(' ').length === 1) {
+			socket.emit('clue', clue+' '+num);
+			var clue = $('#clueWord').val('');
+			var num = $('#clueNum').val('1');
+		}
+	});
+
+	socket.on('newClue', function(clue) {
+		$('#clue').html(clue);
 	});
 
 	socket.emit('waiting', meta('gameID'), meta('role'), function() {

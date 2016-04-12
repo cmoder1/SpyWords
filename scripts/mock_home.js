@@ -14,22 +14,18 @@ window.addEventListener('load', function(){
 		var username = $('#username').val();
 		var gamename = $('#gamename').val();
 		if (username.split(' ').join('') !== '' && gamename.split(' ').join('') !== '') {
-			socket.emit('validateName', gamename, function(valid) {
+			socket.emit('validateName', gamename, function(valid, full) {
 				if (valid) {
-					//console.log('valid');
-					$('#uniquePrompt').css('display', 'none');
+					$('#inputError').css('display', 'none');
 					$('#newGameSetup').css('display', 'block');
 				} else {
-					//console.log('invalid');
-					$('#uniquePrompt').css('display', 'block');
+					$('#inputError').css('display', 'block');
+					$('#inputError').html('That game name is already in use');
 				}
-				$('#formPrompt').css('display', 'none');
-				$('#existsPrompt').css('display', 'none');
 			});
 		} else {
-			$('#formPrompt').css('display', 'block');
-			$('#uniquePrompt').css('display', 'none');
-			$('#existsPrompt').css('display', 'none');
+			$('#inputError').css('display', 'block');
+			$('#inputError').html('You must enter a nickname and game name');
 		}
 	});
 
@@ -59,21 +55,24 @@ window.addEventListener('load', function(){
 		var username = $('#username').val();
 		var gamename = $('#gamename').val();
 		if (username.split(' ').join('') !== '' && gamename.split(' ').join('') !== '') {
-			socket.emit('validateName', gamename, function(unique) {
+			socket.emit('validateName', gamename, function(unique, full) {
 				if (!unique) {
-					$('#existsPrompt').css('display', 'none');
-					$('#joinGameSetup').css('display', 'block');
-					socket.emit('getRoles', gamename, updateRoles);
+					if (full) {
+						$('#inputError').css('display', 'block');
+						$('#inputError').html('The selected game is already full');
+					} else {
+						$('#inputError').css('display', 'none');
+						$('#joinGameSetup').css('display', 'block');
+						socket.emit('getRoles', gamename, updateRoles);
+					}
 				} else {
-					$('#existsPrompt').css('display', 'block');
+					$('#inputError').css('display', 'block');
+					$('#inputError').html('This game does not exist');
 				}
-				$('#formPrompt').css('display', 'none');
-				$('#uniquePrompt').css('display', 'none');
 			});
 		} else {
-			$('#formPrompt').css('display', 'block');
-			$('#existsPrompt').css('display', 'none');
-			$('#uniquePrompt').css('display', 'none');
+			$('#inputError').css('display', 'block');
+			$('#inputError').html('You must enter a nickname and game name');
 		}
 	});
 

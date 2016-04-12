@@ -79,9 +79,9 @@ db.once('open', function() {
             
             var g = gameData[gameID];
             if (g === null || g === undefined) {
-                callback(true);
+                callback(true, false);
             } else {
-                callback(false);
+                callback(false, g.roles.length === 0);
             }
             /*Game.find({ gameID: gameID }, function(err, g) {
                 //console.log(g);
@@ -200,9 +200,13 @@ db.once('open', function() {
                 }
             });*/
             var g = gameData[gameID];
-            if (g.players.length == g.numPlayers) {//clients.length === 4) {
+            if (g.players !== undefined && g.players.length == g.numPlayers) {//clients.length === 4) {
                 io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
             }
+        });
+
+        socket.on('clue', function(clue) {
+            io.sockets.in(socket.gameID).emit('newClue', clue);
         });
 
         // the client disconnected/closed their browser window
