@@ -9,6 +9,7 @@
     <link href='https://fonts.googleapis.com/css?family=Exo:400,200italic' rel='stylesheet' type='text/css'>
     <meta name="gameID" content="{{gameID}}"/>
     <meta name="role" content="{{role}}"/>
+    <meta name="currentTurn" content="{{currentTurn}}"/>
 </head>
 <body>
 	<div id='blueTurn'></div>
@@ -41,11 +42,29 @@
 			</form>
 		</div>
 	</div>
-	<div id="pastClues">
-		<p class='hamburger'>&#9776;</p><p>Past Clues</p>
+	<div id="pastClues" class="popup">
+		<p class='hamburger'>&#9776;</p><p class="windowHeader">Past Clues</p>
+		<div class="stats" id="history">
+			<ul>
+				<li class="message">Pirates 3</li>
+				<li class="message">Food 2</li>
+				<li class="message">Batman 4</li>
+			</ul>
+		</div>
 	</div>
-	<div id="chat">
-		<p class='hamburger'>&#9776;</p><p>Chat</p>
+	<div id="chat" class="popup">
+		<p class='hamburger'>&#9776;</p><p class="windowHeader">Chat</p>
+		<div class="stats" id="messages">
+			<ul>
+				<li class="message"><span class="chatName">Charlie:</span> This is the first message</li>
+			</ul>
+		</div>
+		<div id="footer">
+		<form action="" id="messageForm">
+	    	<input type="text" name="message" id="messageField" placeholder="Message">
+	    	<input type="hidden" name="nickname" id="nicknameField" value="">
+	    	<input type="submit" value="Send">
+		</form>
 	</div>
 	
 </body>

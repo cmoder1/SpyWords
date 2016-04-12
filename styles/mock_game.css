@@ -63,7 +63,7 @@ button .name1, button .name2{
 }
 
 #blueTurn {
-	display: block;
+	display: none;
 	position: fixed;
 	top: 0px;
 	left: 0px;
@@ -290,11 +290,6 @@ h2 {
 	background-color: rgba(202,0,32,0.6);
 }
 
-#BSM {
-	background-color: rgba(5,113,176,1);
-	box-shadow: 0 0 7px 3px white;
-}
-
 #clueEntry [type='button']{
 	background-color: rgba(122,1,119,0.5);
 	color: white;
@@ -309,7 +304,8 @@ h2 {
     display: inline-block;
     width: 60%;
     background-color: rgb(255,255,222);
-    height: 40px;
+    padding: 6px;
+    height: inherit;
     border-radius: 12px;
 }
 
@@ -317,40 +313,90 @@ h2 {
 	margin-top: -30px;
 }
 
-#pastClues {
-	width: 20%;
+/* ========================================================
+ * =================  Popup/Chat Windows  =================
+ * ======================================================== */
+
+.popup {
 	margin: 0 5%;
-	height: 100px;
 	background-color: rgba(122,1,119,0.5);
 	color: white;
 	position: fixed;
-	right: 0px;
-	bottom: -60px;
-	text-align: center;
+	text-align: left;
 	border-radius: 3px;
 	border: 1px solid rgba(255,255,255,0.5);
 }
 
+#pastClues {
+	width: 20%;
+	right: 0px;
+	height: 360px;
+	bottom: -320px;
+}
+
 #chat {
 	width: 30%;
-	margin: 0 5%;
-	height: 100px;
-	background-color: rgba(122,1,119,0.5);
-	color: white;
-	position: fixed;
 	left: 0px;
-	bottom: -60px;
-	text-align: center;
-	border-radius: 3px;
-	border: 1px solid rgba(255,255,255,0.5);
+	height: 400px;
+	bottom: -360px;
+}
+
+#chat .windowHeader {
+	width: calc(60% - 28px);
+}
+
+#chat .hamburger {
+	width: 40%;
+}
+
+#pastClues .windowHeader {
+	width: calc(75% - 28px);
+}
+
+#pastClues .hamburger {
+	width: 25%;
 }
 
 #pastClues p, #chat p {
 	display: inline-block;
 	color: rgba(255,255,255,1);
 	cursor: pointer;
-}
-.hamburger {
-	float: left;
+	margin: 0px;
+    padding: 7px;
 }
 
+#chat:hover, #pastClues:hover {
+	background-color: rgba(122,1,119,0.8);
+}
+
+.stats {
+	height: 320px;
+	background-color: rgb(255,255,222);
+	color: black;
+	font-size: 14px;
+}
+
+.chatName {
+	font-size: 16px;
+	font-weight: bold;
+}
+
+.stats ul {
+	margin-top: 0px;
+	padding: 10px 5px 10px 20px;
+}
+
+.stats li {
+	display: block;
+}
+
+#messageForm {
+	background-color: #ffea9f;
+	border: 1px solid rgba(255,255,255,0.3);
+}
+
+#messageField {
+	width: 70%;
+	height: 10px;
+	font-size: 13px;
+}

@@ -3,22 +3,11 @@ var socket = io.connect();
 // This code will be executed when the page finishes loading
 window.addEventListener('load', function(){
 	
-	socket.on('startGame', function() { 
+	socket.on('startGame', function(turn, timer) { 
 		var interv = window.setInterval(timeTick, 1000);
 
-		$('h1').on('click', function(){ 
-			console.log('Click!');
-			if ($('#redTurn').css('display') === 'block') {
-				console.log('Blue');
-				$('#blueTurn').css('display', 'block');
-				$('#redTurn').css('display', 'none');
-			} else {
-				console.log('Red');
-				$('#blueTurn').css('display', 'none');
-				$('#redTurn').css('display', 'block');
-			}
-		});
-
+		displayTurn(turn);
+		setMeta('currentTurn', turn);
 		/* BORDER STYLE
 		$('.red').css('border', '3px solid rgb(202,0,32)');
 		$('.blue').css('border', '3px solid rgb(5,113,176)');
@@ -115,7 +104,39 @@ window.addEventListener('load', function(){
 		$('#'+role).html('<p>'+name+'</p>');
 	});
 
+	$('#chat p').on('click', function() {
+		if ($('#chat').css('bottom') === '0px') {
+			$('#chat').css('bottom', '-360px');
+		} else {
+			$('#chat').css('bottom', '0px');
+		}
+	});
+	$('#pastClues p').on('click', function() {
+		if ($('#pastClues').css('bottom') === '0px') {
+			$('#pastClues').css('bottom', '-320px');
+		} else {
+			$('#pastClues').css('bottom', '0px');
+		}
+	});
+
 }, false);
+
+
+
+function displayTurn(role) {
+	if (role[0] === 'B') {
+		$('#blueTurn').css('display', 'block');
+		$('#redTurn').css('display', 'none');
+		$('#'+role).css('background-color', 'rgba(5,113,176,1)');
+		$('#'+role).css('box-shadow', '0 0 7px 3px white');
+	} else {
+		$('#blueTurn').css('display', 'none');
+		$('#redTurn').css('display', 'block');
+		$('#'+role).css('background-color', 'rgba(202,0,32,1)');
+		$('#'+role).css('box-shadow', '0 0 7px 3px white');
+	}
+}
+
 
 // Helper to retrieve page meta data
 function meta(name) {
@@ -123,6 +144,13 @@ function meta(name) {
     if (tag != null)
         return tag.content;
     return '';
+}
+
+function setMeta(name, newValue) {
+	var tag = document.querySelector('meta[name=' + name + ']');
+    if (tag != null)
+        tag.content = newValue;
+    return;
 }
 
 function timeTick() {

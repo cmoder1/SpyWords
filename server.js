@@ -103,11 +103,13 @@ db.once('open', function() {
                 }
 
                 var roles = ['BSM', 'BFA', 'RSM', 'RFA'];
+                var turn = 'BSM';
                 if (numPlayers === '2') {
                     if (claimedRole[0] === 'B') {
                         roles = ['BSM', 'BFA'];
                     } else {
                         roles = ['RSM', 'RFA'];
+                        turn = 'RSM';
                     }
                 }
                 roles.splice(roles.indexOf(claimedRole), 1);
@@ -118,7 +120,7 @@ db.once('open', function() {
                     numPlayers: numPlayers,
                     players: [{ name: username, team: claimedRole[0], role: claimedRole }],
                     roles: roles,
-                    turn: 'BSM',
+                    turn: turn,
                     clueTimer: clueTime,//'02:45',
                     guessTimer: guessTime,//'02:30',
                     gameOver: false
@@ -160,7 +162,7 @@ db.once('open', function() {
             Game.findOne({ gameID: gameID }, function(err, g) {
                 //var clients = io.sockets.adapter.rooms[gameID];
                 if (g.players.length === g.numPlayers) {//clients.length === 4) {
-                    io.sockets.in(gameID).emit('startGame');
+                    io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
                 }
             })
         });
