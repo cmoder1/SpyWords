@@ -4,6 +4,7 @@ var socket = io.connect();
 window.addEventListener('load', function(){
 	
 	socket.on('startGame', function(turn, timer) { 
+		console.log('Game Started');
 		var interv = window.setInterval(timeTick, 1000);
 
 		displayTurn(turn);

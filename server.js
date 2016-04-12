@@ -33,6 +33,7 @@ app.set('port', (process.env.PORT || 8080));
  * ======================================================== */
 
 var db = mongoose.connection;
+var gameData = {}; // Small-scale data storage
 db.on('error', console.error);
 db.once('open', function() {
     // Create your schemas and models here
@@ -75,21 +76,31 @@ db.once('open', function() {
         // Check to see if the game is already full
         // ........
         socket.on('validateName', function(gameID, callback) {
-            Game.find({ gameID: gameID }, function(err, g) {
+            
+            var g = gameData[gameID];
+            if (g === null || g === undefined) {
+                callback(true);
+            } else {
+                callback(false);
+            }
+            /*Game.find({ gameID: gameID }, function(err, g) {
                 //console.log(g);
                 if (g.length === 0) {
                     callback(true);
                 } else {
                     callback(false);
                 }
-            });
+            });*/
         });
 
         socket.on('getRoles', function(gameID, callback) {
-            Game.findOne({ gameID: gameID }, function(err, g) {
+            
+            var g = gameData[gameID];
+            callback(g['roles']);
+            /*Game.findOne({ gameID: gameID }, function(err, g) {
                 //console.log(g);
                 callback(g.roles);
-            });
+            });*/
         });
 
         socket.on('createGame', function(gameID, username, claimedRole, numPlayers, clueTime, guessTime, callback) {
@@ -114,7 +125,20 @@ db.once('open', function() {
                 }
                 roles.splice(roles.indexOf(claimedRole), 1);
 
-                var game = new Game({
+                var g = {
+                    gameID: gameID,
+                    cards: card_data['cards'],
+                    numPlayers: numPlayers,
+                    players: [{ name: username, team: claimedRole[0], role: claimedRole }],
+                    roles: roles,
+                    turn: turn,
+                    clueTimer: clueTime,//'02:45',
+                    guessTimer: guessTime,//'02:30',
+                    gameOver: false
+                };
+                gameData[gameID] = g;
+                callback();
+                /*var game = new Game({
                     gameID: gameID,
                     cards: card_data['cards'],
                     numPlayers: numPlayers,
@@ -126,7 +150,7 @@ db.once('open', function() {
                     gameOver: false
                 });
 
-                game.save(callback);
+                game.save(callback);*/
 
                 //response.render('mock_game.html', card_data);
             });
@@ -138,7 +162,15 @@ db.once('open', function() {
                 return;
             } 
 
-            Game.findOne({ gameID: gameID }, function(err, g) {
+            var g = gameData[gameID];
+            callback(g.roles.length === 0, claimedRole);
+            var p = { name: username, team: claimedRole[0], role: claimedRole };
+            g.players.push(p);
+            g.roles.splice(g.roles.indexOf(claimedRole), 1);
+            //g.save();
+            io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
+            io.sockets.in(gameID).emit('newPlayer', claimedRole, username);
+            /*Game.findOne({ gameID: gameID }, function(err, g) {
                 callback(g.roles.length === 0, claimedRole);
                 var p = { name: username, team: claimedRole[0], role: claimedRole };
                 g.players.push(p);
@@ -146,30 +178,43 @@ db.once('open', function() {
                 g.save();
                 io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
                 io.sockets.in(gameID).emit('newPlayer', claimedRole, username);
-            });
+            });*/
         });
 
         socket.on('getPlayers', function(gameID, callback) {
-            Game.findOne({ gameID: gameID }, function(err, g) {
+            /*Game.findOne({ gameID: gameID }, function(err, g) {
                 callback(g.players);
-            });
+            });*/
+            var g = gameData[gameID];
+            callback(g.players);
         });
 
         socket.on('waiting', function(gameID, role, callback) {
             socket.join(gameID);
             socket.gameID = gameID;
             socket.role = role;
-            Game.findOne({ gameID: gameID }, function(err, g) {
+            /*Game.findOne({ gameID: gameID }, function(err, g) {
                 //var clients = io.sockets.adapter.rooms[gameID];
                 if (g.players.length === g.numPlayers) {//clients.length === 4) {
                     io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
                 }
-            })
+            });*/
+            var g = gameData[gameID];
+            if (g.players.length == g.numPlayers) {//clients.length === 4) {
+                io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
+            }
         });
 
         // the client disconnected/closed their browser window
         socket.on('disconnect', function(){
             // Leave the room!
+            var gameID = socket.gameID;
+            if (gameID !== undefined){
+                var clients = io.sockets.adapter.rooms[gameID];
+                if (clients === undefined || clients.length === 0) {
+                    delete gameData[gameID];
+                }
+            }
             console.log('TODO');
         });
 
@@ -186,7 +231,7 @@ db.once('open', function() {
         var gameID = request.params.gameID;
         var role = request.params.role;
 
-        Game.findOne({ gameID: gameID }, function(err, g) {
+        /*Game.findOne({ gameID: gameID }, function(err, g) {
             //console.log('Found!');
             //console.log(g['gameID']);
 
@@ -207,7 +252,25 @@ db.once('open', function() {
                 //g.save();
                 //io.sockets.in('Home').emit('roleUpdate', g.gameID, temp);
             }
-        });
+        });*/
+        var g = gameData[gameID];
+        if (g === null) {
+            console.log('This game has not been created!');
+            response.redirect('/');
+        } else {
+            var game_data = { gameID: gameID, role: role, cards: g['cards'] };
+            if (role === 'BSM' || role === 'RSM') {
+                response.render('spyMaster.html', game_data);
+            } else {
+                response.render('fieldAgent.html', game_data);
+            }
+            //temp = g.roles;
+            //temp.splice(temp.indexOf('RSM'),1);
+            // TODO: Actually update the game object
+            //g.roles = temp;
+            //g.save();
+            //io.sockets.in('Home').emit('roleUpdate', g.gameID, temp);
+        }
     });
 
     // Catchall page - Home
