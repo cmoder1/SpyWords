@@ -1,4 +1,4 @@
-SpyWords
+SpyWords-GROUP43
 ========
 A card-based, word-association, guessing game traditionally played with 4 people
 
