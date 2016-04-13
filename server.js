@@ -113,13 +113,16 @@ db.once('open', function() {
                     card_data['cards'].push({ 'word': words[i], 'team': teams[i], 'guessed': false });
                 }
 
+                var order = ['BSM', 'BFA', 'RSM', 'RFA'];
                 var roles = ['BSM', 'BFA', 'RSM', 'RFA'];
                 var turn = 'BSM';
                 if (numPlayers === '2') {
                     if (claimedRole[0] === 'B') {
                         roles = ['BSM', 'BFA'];
+                        order = ['BSM', 'BFA'];
                     } else {
                         roles = ['RSM', 'RFA'];
+                        order = ['RSM', 'RFA'];
                         turn = 'RSM';
                     }
                 }
@@ -131,6 +134,7 @@ db.once('open', function() {
                     numPlayers: numPlayers,
                     players: [{ name: username, team: claimedRole[0], role: claimedRole }],
                     roles: roles,
+                    order: order,
                     turn: turn,
                     clueTimer: clueTime,//'02:45',
                     guessTimer: guessTime,//'02:30',
@@ -205,8 +209,11 @@ db.once('open', function() {
             }
         });
 
-        socket.on('clue', function(clue) {
-            io.sockets.in(socket.gameID).emit('newClue', clue);
+        socket.on('clue', function(clue, role) {
+            var gameID = socket.gameID;
+            var g = gameData[gameID];
+            var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
+            io.sockets.in(gameID).emit('newClue', clue, role, nextRole, g.clueTimer);
         });
 
         // the client disconnected/closed their browser window
@@ -290,17 +297,7 @@ db.once('open', function() {
     // Set up the listener and make the table of messages once done
     //server.listen(8080, function() {
     server.listen(app.get('port'), function() {
-        /*conn.query('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT,'+
-            ' room TEXT, nickname TEXT, body TEXT, time INTEGER);')
-        .on('end', function(){
-            console.log('Messages table set');
-        });
-
-        conn.query('CREATE TABLE IF NOT EXISTS rooms (roomID TEXT PRIMARY KEY, roomName TEXT);')
-            .on('end', function(){
-                console.log('Rooms table set');
-            });
-        */
+        console.log('Server is ready!');
     });
 
 

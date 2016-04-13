@@ -12,7 +12,7 @@ window.addEventListener('load', function(){
 		clearInterval(interv);
 		interv = window.setInterval(timeTick, 1000);
 
-		displayTurn(turn);
+		displayTurn(null, turn);
 		setMeta('currentTurn', turn);
 		/* BORDER STYLE
 		$('.red').css('border', '3px solid rgb(202,0,32)');
@@ -97,14 +97,15 @@ window.addEventListener('load', function(){
 
 		*/
 	});
+	
+	/* ========================================================
+     * ===================  Game-Play Events  =================
+     * ======================================================== */
 
-	// Set this once and then don't alter it... only alter the time displayed in the clock
-	var interv = window.setInterval(function(){}, 1000);
-	// CLICKING CARDS:
 	$('.card').on('click', function(e) {
-		var role = meta('role');
-		if ((role === 'BFA' || role === 'RFA') && meta('role')[0] === meta('currentTurn')[0]) {
-			console.log('ITS MY TURN');
+		var myRole = meta('role');
+		if ((myRole === 'BFA' || myRole === 'RFA') && myRole === meta('currentTurn')) {
+
 			var card = e.target;
 			var word = '';
 			if (card.tagName === 'DIV') {
@@ -113,24 +114,32 @@ window.addEventListener('load', function(){
 				word = $(card).html();
 			}
 			console.log(word);
+			socket.emit('guessWord', word, myRole);
 			//socket.emit('cardClick', ...) // Perhaps give each card an ID to pass along
 		}
 	});
 
 	$('#submitClue').on('click', function() {
-		// TODO: check if it is really your turn
 		var clue = $('#clueWord').val();
 		var num = $('#clueNum').val();
-		if (clue.split(' ').length === 1) {
-			socket.emit('clue', clue+' '+num);
+		if (meta('role') === meta('currentTurn') && clue.split(' ').length === 1) {
+			socket.emit('clue', clue+' '+num, meta('role'));
 			var clue = $('#clueWord').val('');
 			var num = $('#clueNum').val('1');
 		}
 	});
 
-	socket.on('newClue', function(clue) {
+	socket.on('newClue', function(clue, prev, next, time) {
 		$('#clue').html(clue);
+		nextTurn(prev, next, time);
 	});
+
+	/* ========================================================
+     * ===================  Pre-Game Setup  ===================
+     * ======================================================== */
+
+     // Set this once and then don't alter it... only alter the time displayed in the clock
+	var interv = window.setInterval(function(){}, 1000);
 
 	socket.emit('waiting', meta('gameID'), meta('role'), function() {
 		console.log('Entered the game');
@@ -164,18 +173,38 @@ window.addEventListener('load', function(){
 }, false);
 
 
+/* ========================================================
+ * ==================  Helper Functions  ==================
+ * ======================================================== */
 
-function displayTurn(role) {
+function nextTurn(prevRole, currRole, time) {
+	displayTurn(prevRole, currRole);
+	setMeta('currentTurn', currRole);
+	$('#minutes').html(time.split(':')[0]);
+	$('#seconds').html(time.split(':')[1]);
+
+	$('#timer p').css('color', 'black');
+}
+
+function displayTurn(prev, role) {
 	if (role[0] === 'B') {
 		$('#blueTurn').css('display', 'block');
 		$('#redTurn').css('display', 'none');
 		$('#'+role).css('background-color', 'rgba(5,113,176,1)');
 		$('#'+role).css('box-shadow', '0 0 7px 3px white');
+		if (prev !== null) {
+			$('#'+prev).css('background-color', 'rgba(5,113,176,0.5)');
+			$('#'+prev).css('box-shadow', 'none');
+		}
 	} else {
 		$('#blueTurn').css('display', 'none');
 		$('#redTurn').css('display', 'block');
 		$('#'+role).css('background-color', 'rgba(202,0,32,1)');
 		$('#'+role).css('box-shadow', '0 0 7px 3px white');
+		if (prev !== null) {
+			$('#'+prev).css('background-color', 'rgba(202,0,32,0.5)');
+			$('#'+prev).css('box-shadow', 'none');
+		}
 	}
 }
 
