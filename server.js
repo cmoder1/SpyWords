@@ -110,7 +110,7 @@ db.once('open', function() {
                 var card_data = { 'cards' : [] };
 
                 for (var i=0; i<words.length; i++) {
-                    card_data['cards'].push({ 'word': words[i], 'team': teams[i], 'guessed': false });
+                    card_data['cards'].push({ 'word': words[i], 'team': teams[i], 'guessed': false, 'index': i });
                 }
 
                 var order = ['BSM', 'BFA', 'RSM', 'RFA'];
@@ -213,7 +213,22 @@ db.once('open', function() {
             var gameID = socket.gameID;
             var g = gameData[gameID];
             var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
-            io.sockets.in(gameID).emit('newClue', clue, role, nextRole, g.clueTimer);
+            io.sockets.in(gameID).emit('newClue', clue, role, nextRole, g.guessTimer);
+        });
+
+        socket.on('guessWord', function(wordIdx, role) {
+            var gameID = socket.gameID;
+            var g = gameData[gameID];
+            var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
+            var cardTeam = g.cards[wordIdx].team;
+            io.sockets.in(gameID).emit('newGuess', wordIdx, cardTeam);
+        });
+
+        socket.on('doneGuessing', function(role) {
+            var gameID = socket.gameID;
+            var g = gameData[gameID];
+            var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
+            io.sockets.in(gameID).emit('newClue', '&mdash;', role, nextRole, g.clueTimer);
         });
 
         // the client disconnected/closed their browser window

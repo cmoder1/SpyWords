@@ -5,24 +5,9 @@ window.addEventListener('load', function(){
 	
 	socket.on('startGame', function(turn, timer) { 
 		console.log('Game Started');
-		$('#minutes').html(timer.split(':')[0]);
-		$('#seconds').html(timer.split(':')[1]);
-
-		$('#timer p').css('color', 'black');
+		nextTurn(null, turn, timer);
 		clearInterval(interv);
 		interv = window.setInterval(timeTick, 1000);
-
-		displayTurn(null, turn);
-		setMeta('currentTurn', turn);
-		/* BORDER STYLE
-		$('.red').css('border', '3px solid rgb(202,0,32)');
-		$('.blue').css('border', '3px solid rgb(5,113,176)');
-		*/
-
-		/* BACKGROUND STYLE
-		$('.red').css('background-color', 'rgba(222,20,52,1)');
-		$('.blue').css('background-color', 'rgba(25,133,196,1)');
-		*/
 
 		var spymasterView = true;
 		var role = meta('role');
@@ -39,6 +24,16 @@ window.addEventListener('load', function(){
 			$('.red').css('background-color', 'rgb(255,204,139)');
 			$('.blue').css('background-color', 'rgb(185,204,189)');
 			$('.assassin').css('background-color', 'rgb(215,204,149)');
+
+			/* BORDER STYLE
+			$('.red').css('border', '3px solid rgb(202,0,32)');
+			$('.blue').css('border', '3px solid rgb(5,113,176)');
+			*/
+
+			/* BACKGROUND STYLE
+			$('.red').css('background-color', 'rgba(222,20,52,1)');
+			$('.blue').css('background-color', 'rgba(25,133,196,1)');
+			*/
 		} else {
 			$('.card').css('box-shadow', '0 0 5px 2px #ffea9f');
 		}
@@ -105,18 +100,50 @@ window.addEventListener('load', function(){
 	$('.card').on('click', function(e) {
 		var myRole = meta('role');
 		if ((myRole === 'BFA' || myRole === 'RFA') && myRole === meta('currentTurn')) {
-
 			var card = e.target;
+
+			var index = -1;
 			var word = '';
 			if (card.tagName === 'DIV') {
 				word = $($(card).children()[0]).html();
+				index = $(card).attr('class').split(' ')[1];
 			} else {
 				word = $(card).html();
+				index = $($(card).parent()).attr('class').split(' ')[1];
 			}
 			console.log(word);
-			socket.emit('guessWord', word, myRole);
+			console.log(index);
+			socket.emit('guessWord', index, myRole);
 			//socket.emit('cardClick', ...) // Perhaps give each card an ID to pass along
 		}
+	});
+
+	socket.on('newGuess', function(wordIdx, cardTeam) {
+		console.log(wordIdx + ' ' + cardTeam);
+		if (cardTeam === 'blue') {
+			$('#blueScore').html($('#blueScore').html()*1 - 1);
+			$('.'+wordIdx).css('background-color', 'rgb(5,113,176)');
+			$('.'+wordIdx).css('box-shadow', 'none');
+			$($('.'+wordIdx).children()).css('background-color', 'rgb(146,197,222)');
+			$($('.'+wordIdx).children()).css('opacity', '0.2');
+		} else if (cardTeam === 'red') {
+			$('#redScore').html($('#redScore').html()*1 - 1);
+			$('.'+wordIdx).css('background-color', 'rgba(202,0,32,1)');
+			$('.'+wordIdx).css('box-shadow', 'none');
+			$($('.'+wordIdx).children()).css('background-color', 'rgb(244,165,130)');
+			$($('.'+wordIdx).children()).css('opacity', '0.2');
+		} else if (cardTeam === 'neutral') {
+			$('.'+wordIdx).css('background-color', 'rgb(215,184,119)');
+			$('.'+wordIdx).css('box-shadow', 'none');
+			$($('.'+wordIdx).children()).css('background-color', 'rgb(235,235,192)');
+			$($('.'+wordIdx).children()).css('opacity', '0.2');
+		} else {
+			alert('Game Over!');
+		}
+	});
+
+	$('#doneGuessing').on('click', function() {
+		socket.emit('doneGuessing', meta('role'));
 	});
 
 	$('#submitClue').on('click', function() {
@@ -131,6 +158,9 @@ window.addEventListener('load', function(){
 
 	socket.on('newClue', function(clue, prev, next, time) {
 		$('#clue').html(clue);
+		if (clue != '&mdash;') {
+			$('#history ul').append('<li class="message">'+clue+'</li>')
+		}
 		nextTurn(prev, next, time);
 	});
 
@@ -190,20 +220,32 @@ function displayTurn(prev, role) {
 	if (role[0] === 'B') {
 		$('#blueTurn').css('display', 'block');
 		$('#redTurn').css('display', 'none');
-		$('#'+role).css('background-color', 'rgba(5,113,176,1)');
-		$('#'+role).css('box-shadow', '0 0 7px 3px white');
-		if (prev !== null) {
-			$('#'+prev).css('background-color', 'rgba(5,113,176,0.5)');
-			$('#'+prev).css('box-shadow', 'none');
-		}
 	} else {
 		$('#blueTurn').css('display', 'none');
 		$('#redTurn').css('display', 'block');
-		$('#'+role).css('background-color', 'rgba(202,0,32,1)');
-		$('#'+role).css('box-shadow', '0 0 7px 3px white');
-		if (prev !== null) {
-			$('#'+prev).css('background-color', 'rgba(202,0,32,0.5)');
-			$('#'+prev).css('box-shadow', 'none');
+	}
+	colorPlayer(role, true);
+	if (prev !== null) {
+		colorPlayer(prev, false);
+	}
+}
+
+function colorPlayer(role, bold) {
+	if (role[0] === 'B') {
+		if (bold) {
+			$('#'+role).css('background-color', 'rgba(5,113,176,1)');
+			$('#'+role).css('box-shadow', '0 0 7px 3px white');
+		} else {
+			$('#'+role).css('background-color', 'rgba(5,113,176,0.5)');
+			$('#'+role).css('box-shadow', 'none');
+		}
+	} else {
+		if (bold) {
+			$('#'+role).css('background-color', 'rgba(202,0,32,1)');
+			$('#'+role).css('box-shadow', '0 0 7px 3px white');
+		} else {
+			$('#'+role).css('background-color', 'rgba(202,0,32,0.5)');
+			$('#'+role).css('box-shadow', 'none');
 		}
 	}
 }

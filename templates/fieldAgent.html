@@ -18,7 +18,7 @@
 	<h1><span class='name1'>Code</span><span class='name2'>Names</span></h1>
 	<div id='cards'>
 		{{#cards}}
-		<div class='card {{team}}'>
+		<div class='card {{index}}'>
 			<p>{{word}}</p>
 		</div>
 		{{/cards}}
@@ -39,7 +39,7 @@
 			<p id="clueHeader">Clue:</p>
 			<p id="clue">&mdash;</p>
 			<form id="clueSubmission">
-				<input type='button' id='join' value='Done'></input>
+				<input type='button' id='doneGuessing' value='Done'></input>
 			</form>
 		</div>
 	</div>
@@ -47,9 +47,7 @@
 		<p class='hamburger'>&#9776;</p><p class="windowHeader">Past Clues</p>
 		<div class="stats" id="history">
 			<ul>
-				<li class="message">Pirates 3</li>
-				<li class="message">Food 2</li>
-				<li class="message">Batman 4</li>
+				<!--<li class="message">Pirates 3</li>-->
 			</ul>
 		</div>
 	</div>
