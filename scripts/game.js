@@ -17,12 +17,12 @@ window.addEventListener('load', function(){
 
 		if (spymasterView) {
 			// BOX SHADOW STYLE
-			$('.red').css('box-shadow', '0 0 5px 3px rgb(202,0,32)');
-			$('.blue').css('box-shadow', '0 0 5px 3px rgb(5,113,176)');
+			$('.R').css('box-shadow', '0 0 5px 3px rgb(202,0,32)');
+			$('.B').css('box-shadow', '0 0 5px 3px rgb(5,113,176)');
 			$('.assassin').css('box-shadow', '0 0 5px 3px #222');
 
-			$('.red').css('background-color', 'rgb(255,204,139)');
-			$('.blue').css('background-color', 'rgb(185,204,189)');
+			$('.R').css('background-color', 'rgb(255,204,139)');
+			$('.B').css('background-color', 'rgb(185,204,189)');
 			$('.assassin').css('background-color', 'rgb(215,204,149)');
 
 			/* BORDER STYLE
@@ -113,33 +113,20 @@ window.addEventListener('load', function(){
 			}
 			console.log(word);
 			console.log(index);
-			socket.emit('guessWord', index, myRole);
+			socket.emit('guessWord', index, $('#clue').html(), myRole);
 			//socket.emit('cardClick', ...) // Perhaps give each card an ID to pass along
 		}
 	});
 
+	socket.on('lastGuess', function(wordIdx, cardTeam, prev, next, time) {
+		console.log('LAST GUESS');
+		revealCard(wordIdx, cardTeam);
+		$('#clue').html('&mdash;');
+		nextTurn(prev, next, time);
+	});
+
 	socket.on('newGuess', function(wordIdx, cardTeam) {
-		console.log(wordIdx + ' ' + cardTeam);
-		if (cardTeam === 'blue') {
-			$('#blueScore').html($('#blueScore').html()*1 - 1);
-			$('.'+wordIdx).css('background-color', 'rgb(5,113,176)');
-			$('.'+wordIdx).css('box-shadow', 'none');
-			$($('.'+wordIdx).children()).css('background-color', 'rgb(146,197,222)');
-			$($('.'+wordIdx).children()).css('opacity', '0.2');
-		} else if (cardTeam === 'red') {
-			$('#redScore').html($('#redScore').html()*1 - 1);
-			$('.'+wordIdx).css('background-color', 'rgba(202,0,32,1)');
-			$('.'+wordIdx).css('box-shadow', 'none');
-			$($('.'+wordIdx).children()).css('background-color', 'rgb(244,165,130)');
-			$($('.'+wordIdx).children()).css('opacity', '0.2');
-		} else if (cardTeam === 'neutral') {
-			$('.'+wordIdx).css('background-color', 'rgb(215,184,119)');
-			$('.'+wordIdx).css('box-shadow', 'none');
-			$($('.'+wordIdx).children()).css('background-color', 'rgb(235,235,192)');
-			$($('.'+wordIdx).children()).css('opacity', '0.2');
-		} else {
-			alert('Game Over!');
-		}
+		revealCard(wordIdx, cardTeam);
 	});
 
 	$('#doneGuessing').on('click', function() {
@@ -159,7 +146,7 @@ window.addEventListener('load', function(){
 	socket.on('newClue', function(clue, prev, next, time) {
 		$('#clue').html(clue);
 		if (clue != '&mdash;') {
-			$('#history ul').append('<li class="message">'+clue+'</li>')
+			$('#history ul').append('<li class="message">'+clue+'</li>');
 		}
 		nextTurn(prev, next, time);
 	});
@@ -206,6 +193,31 @@ window.addEventListener('load', function(){
 /* ========================================================
  * ==================  Helper Functions  ==================
  * ======================================================== */
+
+function revealCard(wordIdx, cardTeam) {
+	console.log(wordIdx + ' ' + cardTeam);
+	$('#history ul').append('<li class="guess">  &ndash; '+$('.'+wordIdx).children().html()+'</li>')
+	if (cardTeam === 'B') {
+		$('#blueScore').html($('#blueScore').html()*1 - 1);
+		$('.'+wordIdx).css('background-color', 'rgb(5,113,176)');
+		$('.'+wordIdx).css('box-shadow', 'none');
+		$($('.'+wordIdx).children()).css('background-color', 'rgb(146,197,222)');
+		$($('.'+wordIdx).children()).css('opacity', '0.2');
+	} else if (cardTeam === 'R') {
+		$('#redScore').html($('#redScore').html()*1 - 1);
+		$('.'+wordIdx).css('background-color', 'rgba(202,0,32,1)');
+		$('.'+wordIdx).css('box-shadow', 'none');
+		$($('.'+wordIdx).children()).css('background-color', 'rgb(244,165,130)');
+		$($('.'+wordIdx).children()).css('opacity', '0.2');
+	} else if (cardTeam === 'neutral') {
+		$('.'+wordIdx).css('background-color', 'rgb(215,184,119)');
+		$('.'+wordIdx).css('box-shadow', 'none');
+		$($('.'+wordIdx).children()).css('background-color', 'rgb(235,235,192)');
+		$($('.'+wordIdx).children()).css('opacity', '0.2');
+	} else {
+		alert('Game Over!');
+	}
+}
 
 function nextTurn(prevRole, currRole, time) {
 	displayTurn(prevRole, currRole);

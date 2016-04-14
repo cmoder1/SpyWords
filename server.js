@@ -138,6 +138,7 @@ db.once('open', function() {
                     turn: turn,
                     clueTimer: clueTime,//'02:45',
                     guessTimer: guessTime,//'02:30',
+                    guessCount: 0,
                     gameOver: false
                 };
                 gameData[gameID] = g;
@@ -213,15 +214,26 @@ db.once('open', function() {
             var gameID = socket.gameID;
             var g = gameData[gameID];
             var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
+            g.guessCount = 0;
             io.sockets.in(gameID).emit('newClue', clue, role, nextRole, g.guessTimer);
         });
 
-        socket.on('guessWord', function(wordIdx, role) {
+        socket.on('guessWord', function(wordIdx, clue, role) {
             var gameID = socket.gameID;
             var g = gameData[gameID];
-            var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
-            var cardTeam = g.cards[wordIdx].team;
-            io.sockets.in(gameID).emit('newGuess', wordIdx, cardTeam);
+            
+            if (!g.cards[wordIdx].guessed) {
+                g.guessCount++;
+                var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
+                var cardTeam = g.cards[wordIdx].team;
+                g.cards[wordIdx].guessed = true;
+                console.log('Guess '+g.guessCount+' of '+clue.split(' ')[1]);
+                if (clue.split(' ')[1]*1 === g.guessCount || role[0] !== cardTeam) {
+                    io.sockets.in(gameID).emit('lastGuess', wordIdx, cardTeam, role, nextRole, g.clueTimer);
+                } else {
+                    io.sockets.in(gameID).emit('newGuess', wordIdx, cardTeam);
+                }
+            }
         });
 
         socket.on('doneGuessing', function(role) {
@@ -385,9 +397,9 @@ function assignCards() {
     var reds = 8;
     var blues = 9;
 
-    var assignments = ['blue','red','blue','neutral','red','blue','neutral','red',
-                        'blue','neutral','red','blue','neutral','red','blue','neutral',
-                        'red','blue', 'assassin','neutral','red','blue','neutral','red','blue'];
+    var assignments = ['B','R','B','neutral','R','B','neutral','R',
+                        'B','neutral','R','B','neutral','R','B','neutral',
+                        'R','B', 'assassin','neutral','R','B','neutral','R','B'];
 
     for (var i=0; i<7; i++) {
         shuffle(assignments);
