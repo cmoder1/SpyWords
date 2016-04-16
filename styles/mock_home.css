@@ -108,10 +108,10 @@ input[type='number'] {
 }
 
 select {
-	padding: 5px;
 	width: 180px;
     height: 25px;
 	margin: 5px;
+	padding: 1px 3px;
 	font-family: 'Exo', sans-serif;
 	font-size: 15px;
 	border: solid 1px #bababa;
