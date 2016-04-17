@@ -197,6 +197,18 @@ window.addEventListener('load', function(){
 		}
 	});
 
+	$('#messageForm').on('submit', function(e) {
+		e.preventDefault();
+		//alert('MESSAGE SENT!');
+		socket.emit('message', $('#'+meta('role')+' p').html(), $('#messageField').val());
+		$('#messageField').val('');
+	});
+
+	socket.on('newMessage', function(user, message) {
+		//alert('Message:' + user + message);
+		$('#messages ul').append('<li class="message"><span class="chatName">'+user+':</span> '+message+'</li>');
+	});
+
 }, false);
 
 
@@ -206,7 +218,7 @@ window.addEventListener('load', function(){
 
 function revealCard(wordIdx, cardTeam) {
 	console.log(wordIdx + ' ' + cardTeam);
-	$('#history ul').append('<li class="guess">  &ndash; '+$('.'+wordIdx).children().html()+'</li>')
+	$('#history ul').append('<li class="guess">  &ndash; '+$('.'+wordIdx).children().html()+'</li>');
 	if (cardTeam === 'B') {
 		$('#blueScore').html($('#blueScore').html()*1 - 1);
 		$('.'+wordIdx).css('background-color', 'rgb(5,113,176)');

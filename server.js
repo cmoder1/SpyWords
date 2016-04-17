@@ -243,6 +243,10 @@ db.once('open', function() {
             io.sockets.in(gameID).emit('newClue', '&mdash;', role, nextRole, g.clueTimer);
         });
 
+        socket.on('message', function(user, message) {
+            io.sockets.in(socket.gameID).emit('newMessage', user, message);
+        });
+
         // the client disconnected/closed their browser window
         socket.on('disconnect', function(){
             // Leave the room!
