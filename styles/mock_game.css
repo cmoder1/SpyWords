@@ -408,3 +408,28 @@ h2 {
 	height: 10px;
 	font-size: 13px;
 }
+
+#waiting {
+	opacity: 0.9;
+	position: fixed;
+	top: 35vh;
+	left: 0px;
+	width: 100%;
+}
+
+#waiting img {
+	position: absolute;
+    clip: rect(125px,534px,275px,0px);
+    left: calc(50% - 265px);
+    top: -125px;
+    height: 400px;
+    border-radius: 200px;
+}
+
+#waiting p {
+	color: black;
+    z-index: 1;
+    position: absolute;
+    left: calc(50% - 235px);
+    top: 52px;
+}

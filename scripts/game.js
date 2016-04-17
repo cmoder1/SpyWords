@@ -3,8 +3,16 @@ var socket = io.connect();
 // This code will be executed when the page finishes loading
 window.addEventListener('load', function(){
 	
+	$('#cards').css('opacity', '0.5');
+	$('#controls').css('opacity', '0.5');
+
 	socket.on('startGame', function(turn, timer) { 
 		console.log('Game Started');
+
+		$('#waiting').css('display', 'none');
+		$('#cards').css('opacity', '1');
+		$('#controls').css('opacity', '1');
+
 		nextTurn(null, turn, timer);
 		clearInterval(interv);
 		interv = window.setInterval(timeTick, 1000);
@@ -130,7 +138,9 @@ window.addEventListener('load', function(){
 	});
 
 	$('#doneGuessing').on('click', function() {
-		socket.emit('doneGuessing', meta('role'));
+		if (meta('role') === meta('currentTurn')) {
+			socket.emit('doneGuessing', meta('role'));
+		}
 	});
 
 	$('#submitClue').on('click', function() {
