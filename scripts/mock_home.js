@@ -67,7 +67,7 @@ window.addEventListener('load', function(){
 					}
 				} else {
 					$('#inputError').css('display', 'block');
-					$('#inputError').html('This game does not exist');
+					$('#inputError').html('That game does not exist');
 				}
 			});
 		} else {
@@ -87,19 +87,27 @@ window.addEventListener('load', function(){
 		var username = $('#username').val();
 		var gamename = $('#gamename').val();
 		socket.emit('createGame', gamename, username, $('#role').val(), $('#numPlayers').val(), 
-			$('#clueMins').val()+':'+$('#clueSecs').val(), $('#guessMins').val()+':'+$('#guessSecs').val(), function() {
-				location.href='/'+gamename+'/'+$('#role').val();
+			$('#clueMins').val()+':'+$('#clueSecs').val(), $('#guessMins').val()+':'+$('#guessSecs').val(), function(valid) {
+				if (valid) {
+					location.href='/'+gamename+'/'+$('#role').val();
+				} else {
+					$('#newGameSetup').css('display', 'none');
+					$('#inputError').css('display', 'block');
+					$('#inputError').html('That game name is already in use');
+				}
 			});
 	});
 
 	$('#join').on('click', function(){
 		var username = $('#username').val();
 		var gamename = $('#gamename').val();
-		socket.emit('joinGame', gamename, username, $('#role2').val(), function(full, role){
-			if (full) {
-				$('.setup').css('display', 'none');
+		socket.emit('joinGame', gamename, username, $('#role2').val(), function(valid){
+			if (valid) {
+				location.href='/'+gamename+'/'+$('#role2').val();
 			} else {
-				location.href='/'+gamename+'/'+role;
+				$('.setup').css('display', 'none');
+				$('#inputError').css('display', 'block');
+				$('#inputError').html("That game either doesn't exist or is full");
 			}
 		});
 	});

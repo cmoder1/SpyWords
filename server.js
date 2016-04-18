@@ -104,71 +104,76 @@ db.once('open', function() {
         });
 
         socket.on('createGame', function(gameID, username, claimedRole, numPlayers, clueTime, guessTime, callback) {
-            generateWords(function(words) {
+            if (gameData[gameID] !== undefined) {
+                console.log('USED GAME');
+                callback(false);
+            } else {
+                generateWords(function(words) {
 
-                var teams = assignCards();
-                var card_data = { 'cards' : [] };
+                    var teams = assignCards();
+                    var card_data = { 'cards' : [] };
 
-                for (var i=0; i<words.length; i++) {
-                    card_data['cards'].push({ 'word': words[i], 'team': teams[i], 'guessed': false, 'index': i });
-                }
-
-                var order = ['BSM', 'BFA', 'RSM', 'RFA'];
-                var roles = ['BSM', 'BFA', 'RSM', 'RFA'];
-                var turn = 'BSM';
-                if (numPlayers === '2') {
-                    if (claimedRole[0] === 'B') {
-                        roles = ['BSM', 'BFA'];
-                        order = ['BSM', 'BFA'];
-                    } else {
-                        roles = ['RSM', 'RFA'];
-                        order = ['RSM', 'RFA'];
-                        turn = 'RSM';
+                    for (var i=0; i<words.length; i++) {
+                        card_data['cards'].push({ 'word': words[i], 'team': teams[i], 'guessed': false, 'index': i });
                     }
-                }
-                roles.splice(roles.indexOf(claimedRole), 1);
 
-                var g = {
-                    gameID: gameID,
-                    cards: card_data['cards'],
-                    numPlayers: numPlayers,
-                    players: [{ name: username, team: claimedRole[0], role: claimedRole }],
-                    roles: roles,
-                    order: order,
-                    turn: turn,
-                    clueTimer: clueTime,//'02:45',
-                    guessTimer: guessTime,//'02:30',
-                    guessCount: 0,
-                    gameOver: false
-                };
-                gameData[gameID] = g;
-                callback();
-                /*var game = new Game({
-                    gameID: gameID,
-                    cards: card_data['cards'],
-                    numPlayers: numPlayers,
-                    players: [{ name: username, team: claimedRole[0], role: claimedRole }],
-                    roles: roles,
-                    turn: turn,
-                    clueTimer: clueTime,//'02:45',
-                    guessTimer: guessTime,//'02:30',
-                    gameOver: false
+                    var order = ['BSM', 'BFA', 'RSM', 'RFA'];
+                    var roles = ['BSM', 'BFA', 'RSM', 'RFA'];
+                    var turn = 'BSM';
+                    if (numPlayers === '2') {
+                        if (claimedRole[0] === 'B') {
+                            roles = ['BSM', 'BFA'];
+                            order = ['BSM', 'BFA'];
+                        } else {
+                            roles = ['RSM', 'RFA'];
+                            order = ['RSM', 'RFA'];
+                            turn = 'RSM';
+                        }
+                    }
+                    roles.splice(roles.indexOf(claimedRole), 1);
+
+                    var g = {
+                        gameID: gameID,
+                        cards: card_data['cards'],
+                        numPlayers: numPlayers,
+                        players: [{ name: username, team: claimedRole[0], role: claimedRole }],
+                        roles: roles,
+                        order: order,
+                        turn: turn,
+                        clueTimer: clueTime,//'02:45',
+                        guessTimer: guessTime,//'02:30',
+                        guessCount: 0,
+                        gameOver: false
+                    };
+                    gameData[gameID] = g;
+                    callback(true);
+                    /*var game = new Game({
+                        gameID: gameID,
+                        cards: card_data['cards'],
+                        numPlayers: numPlayers,
+                        players: [{ name: username, team: claimedRole[0], role: claimedRole }],
+                        roles: roles,
+                        turn: turn,
+                        clueTimer: clueTime,//'02:45',
+                        guessTimer: guessTime,//'02:30',
+                        gameOver: false
+                    });
+
+                    game.save(callback);*/
+
+                    //response.render('mock_game.html', card_data);
+
                 });
-
-                game.save(callback);*/
-
-                //response.render('mock_game.html', card_data);
-            });
+            }
         });
 
-        socket.on('joinGame', function(gameID, username, claimedRole, callback) {
-            if (claimedRole === null) {
-                callback(true);
-                return;
-            } 
-
+        socket.on('joinGame', function(gameID, username, claimedRole, callback) { 
             var g = gameData[gameID];
-            callback(g.roles.length === 0, claimedRole);
+            if (claimedRole === null || g === undefined) {
+                callback(false);
+                return;
+            }
+            callback(g.roles.length !== 0);
             var p = { name: username, team: claimedRole[0], role: claimedRole };
             g.players.push(p);
             g.roles.splice(g.roles.indexOf(claimedRole), 1);
@@ -191,7 +196,10 @@ db.once('open', function() {
                 callback(g.players);
             });*/
             var g = gameData[gameID];
-            callback(g.players);
+            if (g !== undefined) {
+                console.log(g.players);
+                callback(g.players);
+            }
         });
 
         socket.on('waiting', function(gameID, role, callback) {
@@ -205,7 +213,7 @@ db.once('open', function() {
                 }
             });*/
             var g = gameData[gameID];
-            if (g.players !== undefined && g.players.length == g.numPlayers) {//clients.length === 4) {
+            if (g !== undefined && g.players !== undefined && g.players.length == g.numPlayers) {//clients.length === 4) {
                 io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
             }
         });
@@ -296,7 +304,7 @@ db.once('open', function() {
             }
         });*/
         var g = gameData[gameID];
-        if (g === null) {
+        if (g === null || g === undefined) {
             console.log('This game has not been created!');
             response.redirect('/');
         } else {

@@ -184,16 +184,20 @@ window.addEventListener('load', function(){
 
 	$('#chat p').on('click', function() {
 		if ($('#chat').css('bottom') === '0px') {
-			$('#chat').css('bottom', '-360px');
+			//$('#chat').css('bottom', '-360px');
+			$('#chat').animate({ 'bottom': '-360px' }, 300);
 		} else {
-			$('#chat').css('bottom', '0px');
+			//$('#chat').css('bottom', '0px');
+			$('#chat').animate({ 'bottom': '0px' }, 300);
 		}
 	});
 	$('#pastClues p').on('click', function() {
 		if ($('#pastClues').css('bottom') === '0px') {
-			$('#pastClues').css('bottom', '-320px');
+			//$('#pastClues').css('bottom', '-320px');
+			$('#pastClues').animate({ 'bottom': '-320px' }, 300);
 		} else {
-			$('#pastClues').css('bottom', '0px');
+			//$('#pastClues').css('bottom', '0px');
+			$('#pastClues').animate({ 'bottom': '0px' }, 300);
 		}
 	});
 
@@ -207,6 +211,14 @@ window.addEventListener('load', function(){
 	socket.on('newMessage', function(user, message) {
 		//alert('Message:' + user + message);
 		$('#messages ul').append('<li class="message"><span class="chatName">'+user+':</span> '+message+'</li>');
+	});
+
+	$(window).on('beforeunload',function(){
+
+	     //save info somewhere
+
+	    alert('are you sure you want to leave?');
+
 	});
 
 }, false);
@@ -225,23 +237,37 @@ function revealCard(wordIdx, cardTeam) {
 		$('.'+wordIdx).css('box-shadow', 'none');
 		$($('.'+wordIdx).children()).css('background-color', 'rgb(146,197,222)');
 		$($('.'+wordIdx).children()).css('opacity', '0.2');
+		if ($('#blueScore').html() === '0') {
+			gameOver('B');
+		}
 	} else if (cardTeam === 'R') {
 		$('#redScore').html($('#redScore').html()*1 - 1);
 		$('.'+wordIdx).css('background-color', 'rgba(202,0,32,1)');
 		$('.'+wordIdx).css('box-shadow', 'none');
 		$($('.'+wordIdx).children()).css('background-color', 'rgb(244,165,130)');
 		$($('.'+wordIdx).children()).css('opacity', '0.2');
+		if ($('#redScore').html() === '0') {
+			gameOver('R');
+		}
 	} else if (cardTeam === 'neutral') {
 		$('.'+wordIdx).css('background-color', 'rgb(215,184,119)');
 		$('.'+wordIdx).css('box-shadow', 'none');
 		$($('.'+wordIdx).children()).css('background-color', 'rgb(235,235,192)');
 		$($('.'+wordIdx).children()).css('opacity', '0.2');
 	} else {
-		alert('Game Over!');
+		//alert('Game Over!');
+		if (meta('currentTurn')[0] === 'B') {
+			gameOver('R');
+		} else {
+			gameOver('B');
+		}
 	}
 }
 
 function nextTurn(prevRole, currRole, time) {
+	if (meta('currentTurn') === 'gameOver') {
+		return;
+	}
 	displayTurn(prevRole, currRole);
 	setMeta('currentTurn', currRole);
 	$('#minutes').html(time.split(':')[0]);
@@ -284,6 +310,21 @@ function colorPlayer(role, bold) {
 	}
 }
 
+function gameOver(winner) {
+	$('#cards').css('opacity', '0.5');
+	$('#controls').css('opacity', '0.5');
+	$('#seconds').html('00');
+	$('#minutes').html('0');
+	setMeta('currentTurn', 'gameOver');
+	//clearInterval(interv);
+
+	var team = 'Red Team';
+	if (winner === 'B') {
+		team = 'Blue Team';
+	}
+	$('#gameOver').prepend('<p>The '+team+' wins!</p>');
+	$('#gameOver').css('display', 'block');
+}
 
 // Helper to retrieve page meta data
 function meta(name) {

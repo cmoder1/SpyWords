@@ -192,31 +192,17 @@ select {
     background-color: rgb(255,255,212);
     padding: 2px 0px;
     border: 1px solid rgba(55,55,55,0.2);
+    font-size: 20px;
+    font-size: 1.5vw;
 }
 
-/*
-.red:hover {
-	background-color: rgb(202,0,32);
-}
-
-.blue:hover {
-	background-color: rgb(5,113,176);
-}
-
-.red p:hover {
-	background-color: rgb(244,165,130);
-}
-
-.blue p:hover {
-	background-color: rgb(146,197,222);
-}
-*/
 #controls {
     display: inline-block;
     text-align: center;
     position: absolute;
     top: 13vh;
     width: 30%;
+    margin-bottom: 60px; 
 }
 
 h2 {
@@ -234,7 +220,7 @@ h2 {
 }
 
 #timer {
-	width: 30%;
+	width: 100px;
     background-color: rgb(255,255,212);
     padding: 2px 0px;
     border: 1px solid black;
@@ -258,7 +244,7 @@ h2 {
 	height: 55px;
 	border-radius: 30px;
 	background-color: rgba(122,1,119,0.6);
-	margin: 4px;
+	margin: 4px 4px 20px 4px;
 }
 
 .role p {
@@ -309,9 +295,77 @@ h2 {
     border-radius: 12px;
 }
 
+#clueWord {
+	width: 50%;
+}
+
 #clueHeader {
 	margin-top: -30px;
 }
+
+/*
+@media (max-width: 1050px) {
+	.card {
+		height: 10vh;
+	}
+	.card p {
+		font-size: 15px;
+		margin: 3vh 3% 0 3%;
+	}
+	#controls {
+		top: 9vh;
+	}
+	#controls h2 {
+		font-size: 36pt;
+	}
+	#timer p {
+		font-size: 16pt;
+	}
+	#clueWord {
+		width: 50%;
+	}
+}
+
+@media (max-width: 850px), (max-device-width: 400px) and (max-device-height: 700px) {
+	#cards {
+		width: 100%;
+		margin: 0;
+	}
+	.card {
+		height: 8vh;
+	}
+	.card p {
+		margin: 2.1vh 3% 0 3%;
+	}
+	#controls {
+		position: static;
+		width: 100%;
+	}
+	#controls div {
+		display: inline-block; 
+	}
+	#controls h2 {
+		position: fixed;
+		top: 15px;
+		right: 30px;
+	}
+	#timer {
+		position: fixed;
+    	top: 22px;
+    	right: 160px;
+		width: auto;
+	}
+	#turnOrder {
+		height: auto;
+		width: 150px;
+	}
+	#clueEntry {
+		margin-top: 20px;
+		width: 40%;
+	}
+}
+*/
+
 
 /* ========================================================
  * =================  Popup/Chat Windows  =================
@@ -329,7 +383,7 @@ h2 {
 
 #pastClues {
 	z-index: 1;
-	width: 20%;
+	width: 200px;
 	right: 0px;
 	height: 360px;
 	bottom: -320px;
@@ -337,11 +391,20 @@ h2 {
 
 #chat {
 	z-index: 2;
-	width: 30%;
+	width: 400px;
 	left: 0px;
 	height: 400px;
 	bottom: -360px;
 }
+/*
+@media (max-width: 750px) {
+	#chat {
+		width: 300px;
+	}
+	#pastClues {
+		width: 180px;
+	}
+}*/
 
 #chat .windowHeader {
 	width: calc(60% - 28px);
@@ -352,11 +415,11 @@ h2 {
 }
 
 #pastClues .windowHeader {
-	width: calc(75% - 28px);
+	width: calc(80% - 28px);
 }
 
 #pastClues .hamburger {
-	width: 25%;
+	width: 20%;
 }
 
 #pastClues p, #chat p {
@@ -381,6 +444,10 @@ h2 {
 .chatName {
 	font-size: 16px;
 	font-weight: bold;
+}
+
+#history ul {
+	padding: 10px 5px 10px 30px;
 }
 
 .stats ul {
@@ -421,7 +488,7 @@ h2 {
 
 #waiting img {
 	position: absolute;
-    clip: rect(125px,534px,275px,0px);
+    clip: rect(115px,534px,285px,0px);
     left: calc(50% - 265px);
     top: -125px;
     height: 400px;
@@ -429,9 +496,22 @@ h2 {
 }
 
 #waiting p {
-	color: black;
+	color: white;
     z-index: 1;
     position: absolute;
-    left: calc(50% - 235px);
-    top: 52px;
+    left: calc(50% - 92.5px);
+    top: -10px;
+}
+
+#gameOver {
+	background-color: rgb(255,255,212);
+	position: fixed;
+	top: 100px;
+	display: none;
+    width: 300px;
+    text-align: center;
+    left: calc(50% - 150px);
+    height: 120px;
+    padding-top: 30px;
+    border: 1px solid black;
 }
