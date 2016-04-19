@@ -310,6 +310,17 @@ db.once('open', function() {
             io.sockets.in(gameID).emit('newClue', '&mdash;', role, nextRole, g.clueTimer);
         });
 
+        socket.on('revealUnguessedCards', function(callback) {
+            var g = gameData[socket.gameID];
+            var unguessedCards = [];
+            for (var i=0; i<g.cards.length; i++) {
+                if (!g.cards[i].guessed) {
+                    unguessedCards.push({ team: g.cards[i].team, index: g.cards[i].index });
+                }
+            }
+            callback(unguessedCards);
+        });
+
         socket.on('message', function(user, message) {
             io.sockets.in(socket.gameID).emit('newMessage', user, message);
         });

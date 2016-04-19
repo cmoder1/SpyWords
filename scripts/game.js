@@ -315,6 +315,20 @@ function gameOver(winner) {
 	}
 	$('#gameOver').prepend('<p>The '+team+' wins!</p>');
 	$('#gameOver').css('display', 'block');
+	socket.emit('revealUnguessedCards', function(cards) {
+		for(var i=0; i<cards.length; i++) {
+			if (cards[i].team === 'R') {
+				$('.'+cards[i].index).css('box-shadow', '0 0 5px 3px rgb(202,0,32)');
+				$('.'+cards[i].index).css('background-color', 'rgb(255,204,139)');
+			} else if (cards[i].team === 'B') {
+				$('.'+cards[i].index).css('box-shadow', '0 0 5px 3px rgb(5,113,176)');
+				$('.'+cards[i].index).css('background-color', 'rgb(185,204,189)');
+			} else if (cards[i].team === 'assassin') {
+				$('.'+cards[i].index).css('box-shadow', '0 0 5px 3px #222');
+				$('.'+cards[i].index).css('background-color', 'rgb(215,204,149)');
+			}
+		}
+	});
 }
 
 // Helper to retrieve page meta data

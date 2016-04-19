@@ -517,12 +517,13 @@ h2 {
 #gameOver {
 	background-color: rgb(255,255,212);
 	position: fixed;
-	top: 100px;
+	top: 20.5vh;
 	display: none;
     width: 300px;
     text-align: center;
-    left: calc(50% - 150px);
+    /*left: calc(50% - 150px);*/
+    right: 5%;
     height: 120px;
-    padding-top: 30px;
+    padding: 30px;
     border: 1px solid black;
 }
