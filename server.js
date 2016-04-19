@@ -52,7 +52,7 @@ db.once('open', function() {
         turn: String,
         clueTimer: String,
         guessTimer: String,
-        gameOver: Boolean
+        gameStatus: String
     });
 
     var Game = mongoose.model('Game', gameSchema);
@@ -72,13 +72,12 @@ db.once('open', function() {
             callback();
         });
 
-        // TODO
         // Check to see if the game is already full
         // ........
         socket.on('validateName', function(gameID, callback) {
             
             var g = gameData[gameID];
-            if (g === null || g === undefined) {
+            if (g === undefined) {
                 callback(true, false);
             } else {
                 callback(false, g.roles.length === 0);
@@ -130,6 +129,7 @@ db.once('open', function() {
                             turn = 'RSM';
                         }
                     }
+                    // Remove the claimed role from available list of roles
                     roles.splice(roles.indexOf(claimedRole), 1);
 
                     var g = {
@@ -143,7 +143,7 @@ db.once('open', function() {
                         clueTimer: clueTime,//'02:45',
                         guessTimer: guessTime,//'02:30',
                         guessCount: 0,
-                        gameOver: false
+                        gameStatus: 'pregame'
                     };
                     gameData[gameID] = g;
                     callback(true);
@@ -213,16 +213,27 @@ db.once('open', function() {
                 }
             });*/
             var g = gameData[gameID];
-            if (g !== undefined && g.players !== undefined && g.players.length == g.numPlayers) {//clients.length === 4) {
-                io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
+            if (g !== undefined && g.players.length == g.numPlayers) {//clients.length === 4) {
+                if (g.gameStatus === 'pregame') {
+                    g.gameStatus = 'active';
+                    io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
+                } else if (g.gameStatus === 'active') {
+                    //Joining or REFRESHING in the middle of the game
+                    socket.emit('rejoin');
+                }
             }
         });
+
+        socket.on('reloadGame', function(gameID, role, username) {
+            var g = gameData[gameID]
+        })
 
         socket.on('clue', function(clue, role) {
             var gameID = socket.gameID;
             var g = gameData[gameID];
             var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
             g.guessCount = 0;
+            g.turn = nextRole;
             io.sockets.in(gameID).emit('newClue', clue, role, nextRole, g.guessTimer);
         });
 
@@ -236,7 +247,8 @@ db.once('open', function() {
                 var cardTeam = g.cards[wordIdx].team;
                 g.cards[wordIdx].guessed = true;
                 console.log('Guess '+g.guessCount+' of '+clue.split(' ')[1]);
-                if (clue.split(' ')[1]*1 === g.guessCount || role[0] !== cardTeam) {
+                if (clue.split(' ')[1]*1 === (g.guessCount-1) || role[0] !== cardTeam) {
+                    g.turn = nextRole;
                     io.sockets.in(gameID).emit('lastGuess', wordIdx, cardTeam, role, nextRole, g.clueTimer);
                 } else {
                     io.sockets.in(gameID).emit('newGuess', wordIdx, cardTeam);
@@ -248,6 +260,7 @@ db.once('open', function() {
             var gameID = socket.gameID;
             var g = gameData[gameID];
             var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
+            g.turn = nextRole;
             io.sockets.in(gameID).emit('newClue', '&mdash;', role, nextRole, g.clueTimer);
         });
 
@@ -260,6 +273,8 @@ db.once('open', function() {
             // Leave the room!
             var gameID = socket.gameID;
             if (gameID !== undefined){
+                var g = gameData[gameID];
+
                 var clients = io.sockets.adapter.rooms[gameID];
                 if (clients === undefined || clients.length === 0) {
                     delete gameData[gameID];
@@ -275,11 +290,12 @@ db.once('open', function() {
      * ======================================================== */
 
     // URL to access a specified chatroom
-    app.get('/:gameID/:role', function(request, response){
+    app.get('/:gameID/:role/:username', function(request, response){
         //console.log('Creating a game!');
         // Send the user to a game
         var gameID = request.params.gameID;
         var role = request.params.role;
+        var username = request.params.username;
 
         /*Game.findOne({ gameID: gameID }, function(err, g) {
             //console.log('Found!');
@@ -308,7 +324,7 @@ db.once('open', function() {
             console.log('This game has not been created!');
             response.redirect('/');
         } else {
-            var game_data = { gameID: gameID, role: role, cards: g['cards'] };
+            var game_data = { gameID: gameID, role: role, username: username, cards: g['cards'] };
             if (role === 'BSM' || role === 'RSM') {
                 response.render('spyMaster.html', game_data);
             } else {

@@ -89,7 +89,7 @@ window.addEventListener('load', function(){
 		socket.emit('createGame', gamename, username, $('#role').val(), $('#numPlayers').val(), 
 			$('#clueMins').val()+':'+$('#clueSecs').val(), $('#guessMins').val()+':'+$('#guessSecs').val(), function(valid) {
 				if (valid) {
-					location.href='/'+gamename+'/'+$('#role').val();
+					location.href='/'+gamename+'/'+$('#role').val()+'/'+username;
 				} else {
 					$('#newGameSetup').css('display', 'none');
 					$('#inputError').css('display', 'block');
@@ -103,7 +103,7 @@ window.addEventListener('load', function(){
 		var gamename = $('#gamename').val();
 		socket.emit('joinGame', gamename, username, $('#role2').val(), function(valid){
 			if (valid) {
-				location.href='/'+gamename+'/'+$('#role2').val();
+				location.href='/'+gamename+'/'+$('#role2').val()+'/'+username;
 			} else {
 				$('.setup').css('display', 'none');
 				$('#inputError').css('display', 'block');

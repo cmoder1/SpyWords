@@ -173,6 +173,9 @@ window.addEventListener('load', function(){
 		console.log('Entered the game');
 	});
 
+	// HANDLE THE USER REFRESHING OR SNEAKING INTO THE GAME
+	socket.emit('reloadGame', meta('gameID'), meta('role'), meta('username'));
+
 	socket.emit('getPlayers', meta('gameID'), function(players) {
 		for (var i=0; i<players.length; i++) {
 			$('#'+players[i].role).html('<p>'+players[i].name+'</p>');
@@ -211,23 +214,19 @@ window.addEventListener('load', function(){
 
 	socket.on('newMessage', function(user, message) {
 		//alert('Message:' + user + message);
-		/*if ($('#chat').css('bottom') === '-360px') {
-			for (var i=0; i<2; i++) {
+		if ($('#chat').css('bottom') === '-360px') {
+			for (var i=0; i<1; i++) {
 				$('#chat').animate({ opacity: 0.5 }, 300);
 				$('#chat').animate({ opacity: 1 }, 300);
 			}
-		}*/
+		}
 		$('#messages ul').append('<li class="message"><span class="chatName">'+user+':</span> '+message+'</li>');
 		$('#messages').scrollTop($('#messages')[0].scrollHeight);
 	});
 
-	$(window).on('beforeunload',function(){
-
-	     //save info somewhere
-
-	    alert('are you sure you want to leave?');
-
-	});
+	/*window.onbeforeunload = function() {
+		return "Are you really sure?\nI don't know why anyone would want to leave my beautiful website!";
+	};*/
 
 }, false);
 
