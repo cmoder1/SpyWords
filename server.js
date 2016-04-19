@@ -249,7 +249,32 @@ db.once('open', function() {
             }
         });
 
+        socket.on('validateClue', function(clue, num, callback) {
+            var gameID = socket.gameID;
+            var g = gameData[gameID];
+            var valid = 'valid';
+            if (num > 0 && clue.split(' ').length === 1 && clue.split(' ').join('') !== '') {
+                if (clue.match('[A-Za-z]*')[0] !== clue) {
+                    valid = "The clue can only contain letters of the alphabet";
+                }
+                var cards = g.cards;
+                for (var i=0; i<cards.length; i++) {
+                    if (!cards[i].guessed) {
+                        var w = cards[i].word.toLowerCase();
+                        var c = clue.toLowerCase();
+                        if (w.match('.*'+c+'.*') !== null || c.match('.*'+w+'.*') !== null) {
+                            valid = "You're clue can't be a part of any unguessed card";
+                        }
+                    }
+                }
+                callback(valid);
+            } else {
+                callback('The clue must be a single word and a number greater than zero');
+            }
+        });
+
         socket.on('clue', function(clue, role) {
+            console.log(clue);
             var gameID = socket.gameID;
             var g = gameData[gameID];
             var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];

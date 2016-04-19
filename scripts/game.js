@@ -64,10 +64,18 @@ window.addEventListener('load', function(){
 	$('#submitClue').on('click', function() {
 		var clue = $('#clueWord').val();
 		var num = $('#clueNum').val();
-		if (meta('role') === meta('currentTurn') && clue.split(' ').length === 1) {
-			socket.emit('clue', clue+' '+num, meta('role'));
-			var clue = $('#clueWord').val('');
-			var num = $('#clueNum').val('1');
+		if (meta('role') === meta('currentTurn')) {
+			console.log(clue + ' ' + num);
+			socket.emit('validateClue', clue, num*1, function(valid) {
+				if (valid === 'valid') {
+					socket.emit('clue', clue+' '+num, meta('role'));
+				} else {
+					console.log('Invalid clue');
+					alert(valid);
+				}
+				$('#clueWord').val('');
+				$('#clueNum').val('0');
+			});
 		}
 	});
 
