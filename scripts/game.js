@@ -1,5 +1,5 @@
 var socket = io.connect();
-
+var refreshOverride = true;
 // This code will be executed when the page finishes loading
 window.addEventListener('load', function(){
 	
@@ -7,127 +7,11 @@ window.addEventListener('load', function(){
 	$('#controls').css('opacity', '0.5');
 
 	socket.on('startGame', function(turn, timer) { 
-		console.log('Game Started');
-
-		$('#waiting').css('display', 'none');
-		$('#cards').css('opacity', '1');
-		$('#controls').css('opacity', '1');
-
-		nextTurn(null, turn, timer);
-		clearInterval(interv);
-		interv = window.setInterval(timeTick, 1000);
-
-		var spymasterView = true;
-		var role = meta('role');
-		if (role === 'BFA' || role === 'RFA') {
-			spymasterView = false;
-		}
-
-		if (spymasterView) {
-			// BOX SHADOW STYLE
-			$('.R').css('box-shadow', '0 0 5px 3px rgb(202,0,32)');
-			$('.B').css('box-shadow', '0 0 5px 3px rgb(5,113,176)');
-			$('.assassin').css('box-shadow', '0 0 5px 3px #222');
-
-			$('.R').css('background-color', 'rgb(255,204,139)');
-			$('.B').css('background-color', 'rgb(185,204,189)');
-			$('.assassin').css('background-color', 'rgb(215,204,149)');
-
-			/* BORDER STYLE
-			$('.red').css('border', '3px solid rgb(202,0,32)');
-			$('.blue').css('border', '3px solid rgb(5,113,176)');
-			*/
-
-			/* BACKGROUND STYLE
-			$('.red').css('background-color', 'rgba(222,20,52,1)');
-			$('.blue').css('background-color', 'rgba(25,133,196,1)');
-			*/
-		} else {
-			$('.card').css('box-shadow', '0 0 5px 2px #ffea9f');
-		}
-
-		/*
-		$('.red').on('click', function(e){
-			$('#redScore').html($('#redScore').html()*1 - 1);
-
-			var card = e.target;
-			if (card.tagName === 'DIV') {
-				$(card).css('background-color', 'rgba(202,0,32,1)');
-				$(card).css('box-shadow', 'none');
-				$($(card).children()).css('background-color', 'rgb(244,165,130)');
-				$($(card).children()).css('opacity', '0.2');
-			} else {
-				$(card).css('background-color', 'rgb(244,165,130)');
-				$(card).css('opacity', '0.2');
-				$($(card).parent()).css('background-color', 'rgba(202,0,32,1)');
-				$($(card).parent()).css('box-shadow', 'none');
-			}
-		});
-
-		$('.blue').on('click', function(e){
-			$('#blueScore').html($('#blueScore').html()*1 - 1);
-
-			var card = e.target;
-			if (card.tagName === 'DIV') {
-				$(card).css('background-color', 'rgb(5,113,176)');
-				$(card).css('box-shadow', 'none');
-				$($(card).children()).css('background-color', 'rgb(146,197,222)');
-				$($(card).children()).css('opacity', '0.2');
-			} else {
-				$(card).css('background-color', 'rgb(146,197,222)');
-				$(card).css('opacity', '0.2');
-				$($(card).parent()).css('background-color', 'rgb(5,113,176)');
-				$($(card).parent()).css('box-shadow', 'none');
-			}
-		});
-
-		$('.neutral').on('click', function(e){
-			var card = e.target;
-			if (card.tagName === 'DIV') {
-				$(card).css('background-color', 'rgb(215,184,119)');
-				$(card).css('box-shadow', 'none');
-				$($(card).children()).css('background-color', 'rgb(235,235,192)');
-				$($(card).children()).css('opacity', '0.2');
-			} else {
-				$(card).css('background-color', 'rgb(235,235,192)');
-				$(card).css('opacity', '0.2');
-				$($(card).parent()).css('background-color', 'rgb(215,184,119)');
-				$($(card).parent()).css('box-shadow', 'none');
-			}
-		});
-
-		$('.assassin').on('click', function() { alert('Game Over!') });
-
-		*/
+		startGameDisplay(interv, turn, timer);
 	});
 
 	socket.on('rejoin', function(turn, timer, guessedCards) {
-		$('#waiting').css('display', 'none');
-		$('#cards').css('opacity', '1');
-		$('#controls').css('opacity', '1');
-
-		nextTurn(null, turn, timer);
-		clearInterval(interv);
-		interv = window.setInterval(timeTick, 1000);
-
-		var spymasterView = true;
-		var role = meta('role');
-		if (role === 'BFA' || role === 'RFA') {
-			spymasterView = false;
-		}
-
-		if (spymasterView) {
-			// BOX SHADOW STYLE
-			$('.R').css('box-shadow', '0 0 5px 3px rgb(202,0,32)');
-			$('.B').css('box-shadow', '0 0 5px 3px rgb(5,113,176)');
-			$('.assassin').css('box-shadow', '0 0 5px 3px #222');
-
-			$('.R').css('background-color', 'rgb(255,204,139)');
-			$('.B').css('background-color', 'rgb(185,204,189)');
-			$('.assassin').css('background-color', 'rgb(215,204,149)');
-		} else {
-			$('.card').css('box-shadow', '0 0 5px 2px #ffea9f');
-		}
+		startGameDisplay(interv, turn, timer);
 
 		for (var i=0; i<guessedCards.length; i++) {
 			var c = guessedCards[i];
@@ -203,16 +87,23 @@ window.addEventListener('load', function(){
      // Set this once and then don't alter it... only alter the time displayed in the clock
 	var interv = window.setInterval(function(){}, 1000);
 
-	socket.emit('waiting', meta('gameID'), meta('role'), function() {
-		console.log('Entered the game');
+	socket.emit('waiting', meta('gameID'), meta('role'), meta('username'));
+	socket.on('roleTaken', function() {
+		location.href = '/';
 	});
-
 	// HANDLE THE USER REFRESHING OR SNEAKING INTO THE GAME
 	//socket.emit('reloadGame', meta('gameID'), meta('role'), meta('username'));
 
 	socket.emit('getPlayers', meta('gameID'), function(players) {
-		for (var i=0; i<players.length; i++) {
-			$('#'+players[i].role).html('<p>'+players[i].name+'</p>');
+		console.log('getPlayers: '+players);
+		if (players === null) {
+			//$(window).unbind('beforeunload');
+			refreshOverride = false;
+			location.href = '/';
+		} else {
+			for (var i=0; i<players.length; i++) {
+				$('#'+players[i].role).html('<p>'+players[i].username+'</p>');
+			}
 		}
 	});
 
@@ -262,11 +153,13 @@ window.addEventListener('load', function(){
 		return "Are you really sure?\nRefreshing the page may make you lose game data!";
 	};*/
 	window.addEventListener("beforeunload", function (e) {
-		console.log('REFRESH');
-		var confirmationMessage = "Are you really sure?\nRefreshing the page may make you lose game data!";
-		e.preventDefault();
-		e.returnValue = confirmationMessage;     // Gecko, Trident, Chrome 34+
-		return confirmationMessage;              // Gecko, WebKit, Chrome <34
+		if (refreshOverride) {
+			console.log('REFRESH');
+			var confirmationMessage = "Are you really sure?\nRefreshing the page may make you lose game data!";
+			e.preventDefault();
+			e.returnValue = confirmationMessage;     // Gecko, Trident, Chrome 34+
+			return confirmationMessage;              // Gecko, WebKit, Chrome <34
+		}
 	});
 	/*$(window).on('beforeunload', function) {
 		return "Are you really sure?\nRefreshing the page may disconnect you from the game!";
@@ -278,6 +171,39 @@ window.addEventListener('load', function(){
 /* ========================================================
  * ==================  Helper Functions  ==================
  * ======================================================== */
+
+function startGameDisplay(interv, turn, timer) {
+	console.log('Game Started');
+
+	$('#waiting').css('display', 'none');
+	$('#cards').css('opacity', '1');
+	$('#controls').css('opacity', '1');
+
+	nextTurn(null, turn, timer);
+	clearInterval(interv);
+	interv = window.setInterval(timeTick, 1000);
+
+	var spymasterView = true;
+	var role = meta('role');
+	if (role === 'BFA' || role === 'RFA') {
+		spymasterView = false;
+	}
+
+	if (spymasterView) {
+		// BOX SHADOW STYLE
+		$('.R').css('box-shadow', '0 0 5px 3px rgb(202,0,32)');
+		$('.B').css('box-shadow', '0 0 5px 3px rgb(5,113,176)');
+		$('.assassin').css('box-shadow', '0 0 5px 3px #222');
+
+		$('.R').css('background-color', 'rgb(255,204,139)');
+		$('.B').css('background-color', 'rgb(185,204,189)');
+		$('.assassin').css('background-color', 'rgb(215,204,149)');
+
+	} else {
+		$('.card').css('box-shadow', '0 0 5px 2px #ffea9f');
+	}
+
+}
 
 function revealCard(wordIdx, cardTeam) {
 	console.log(wordIdx + ' ' + cardTeam);

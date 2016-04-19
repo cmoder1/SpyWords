@@ -180,7 +180,8 @@ select {
     margin: 1%;
     border-radius: 4px;
     background-color: #ffea9f;
-    border: 1px solid #cc4c02; 
+    border: 1px solid black;
+    /*#cc4c02;*/
 }
 
 .card:hover {

@@ -23,10 +23,8 @@ app.use(bodyParser.json());
 app.use('/scripts', express.static('scripts'));
 app.use('/styles', express.static('styles'));
 
-
 // heroku code
 app.set('port', (process.env.PORT || 8080));
-
 
 /* ========================================================
  * ================ Connect to Database  ==================
@@ -47,7 +45,7 @@ db.once('open', function() {
         gameID: String,
         cards: [{ word: String, team: String, guessed: Boolean }],
         numPlayers: Number,
-        players: [{ name: String, team: String, role: String }],
+        players: [{ username: String, team: String, role: String }],
         roles: [String],
         turn: String,
         clueTimer: String,
@@ -73,7 +71,6 @@ db.once('open', function() {
         });
 
         // Check to see if the game is already full
-        // ........
         socket.on('validateName', function(gameID, callback) {
             
             var g = gameData[gameID];
@@ -130,13 +127,13 @@ db.once('open', function() {
                         }
                     }
                     // Remove the claimed role from available list of roles
-                    roles.splice(roles.indexOf(claimedRole), 1);
+                    //roles.splice(roles.indexOf(claimedRole), 1);
 
                     var g = {
                         gameID: gameID,
                         cards: card_data['cards'],
                         numPlayers: numPlayers,
-                        players: [{ name: username, team: claimedRole[0], role: claimedRole }],
+                        players: [],//{ name: username, team: claimedRole[0], role: claimedRole }],
                         roles: roles,
                         order: order,
                         turn: turn,
@@ -174,12 +171,12 @@ db.once('open', function() {
                 return;
             }
             callback(g.roles.length !== 0);
-            var p = { name: username, team: claimedRole[0], role: claimedRole };
+            /*var p = { name: username, team: claimedRole[0], role: claimedRole };
             g.players.push(p);
             g.roles.splice(g.roles.indexOf(claimedRole), 1);
             //g.save();
             io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
-            io.sockets.in(gameID).emit('newPlayer', claimedRole, username);
+            io.sockets.in(gameID).emit('newPlayer', claimedRole, username);*/
             /*Game.findOne({ gameID: gameID }, function(err, g) {
                 callback(g.roles.length === 0, claimedRole);
                 var p = { name: username, team: claimedRole[0], role: claimedRole };
@@ -199,13 +196,16 @@ db.once('open', function() {
             if (g !== undefined) {
                 console.log(g.players);
                 callback(g.players);
+            } else {
+                callback(null);
             }
         });
 
-        socket.on('waiting', function(gameID, role, callback) {
+        socket.on('waiting', function(gameID, role, username) {
             socket.join(gameID);
             socket.gameID = gameID;
             socket.role = role;
+            socket.username = username;
             /*Game.findOne({ gameID: gameID }, function(err, g) {
                 //var clients = io.sockets.adapter.rooms[gameID];
                 if (g.players.length === g.numPlayers) {//clients.length === 4) {
@@ -213,7 +213,22 @@ db.once('open', function() {
                 }
             });*/
             var g = gameData[gameID];
-            if (g !== undefined && g.players.length == g.numPlayers) {//clients.length === 4) {
+            if (g !== undefined) {
+                console.log(g.roles);
+                // Your desired role has been taken!
+                if (g.roles.indexOf(role) === -1) {
+                    socket.emit('roleTaken');
+                    return;
+                }
+                var p = { username: username, team: role[0], role: role };
+                g.players.push(p);
+                g.roles.splice(g.roles.indexOf(role), 1);
+                //g.save();
+                io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
+                io.sockets.in(gameID).emit('newPlayer', role, username);
+            }
+
+            if (g !== undefined && g.roles.length === 0) {//g.players.length == g.numPlayers) {//clients.length === 4) {
                 if (g.gameStatus === 'pregame') {
                     g.gameStatus = 'active';
                     io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
@@ -233,17 +248,6 @@ db.once('open', function() {
                 }
             }
         });
-
-        /*
-        socket.on('reloadGame', function(gameID, role, username) {
-            var g = gameData[gameID];
-            if (g !== undefined && g.roles.indexOf(role) === -1) {
-                console.log('ALREADY IN THE GAME');
-                if (g.gameStatus === 'active') {
-                    //send along the current state
-                }
-            }
-        })*/
 
         socket.on('clue', function(clue, role) {
             var gameID = socket.gameID;
@@ -289,13 +293,26 @@ db.once('open', function() {
         socket.on('disconnect', function(){
             // Leave the room!
             var gameID = socket.gameID;
-            if (gameID !== undefined){
-                var g = gameData[gameID];
-
-                var clients = io.sockets.adapter.rooms[gameID];
+            var g = gameData[gameID];
+            if (g !== undefined){
+                console.log('Socket Disconnected');
+                console.log(g.roles);
+                g.roles.push(socket.role);
+                var i = 0;
+                while (i<g.players.length && g.players[i].username !== socket.username) { i++; }
+                if (i<g.players.length) { g.players.splice(i,1); }
+                console.log(g.roles);
+                if (g.roles.length === g.numPlayers*1) {
+                    delete gameData[gameID];
+                    console.log('DELETED GAME: '+gameID);
+                } else {
+                    io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
+                    io.sockets.in(gameID).emit('newPlayer', socket.role, '-');
+                }
+                /*var clients = io.sockets.adapter.rooms[gameID];
                 if (clients === undefined || clients.length === 0) {
                     delete gameData[gameID];
-                }
+                }*/
             }
             console.log('TODO');
         });
@@ -313,6 +330,8 @@ db.once('open', function() {
         var gameID = request.params.gameID;
         var role = request.params.role;
         var username = request.params.username;
+
+        console.log('GET request for game: '+gameID);
 
         /*Game.findOne({ gameID: gameID }, function(err, g) {
             //console.log('Found!');
@@ -341,6 +360,7 @@ db.once('open', function() {
             console.log('This game has not been created!');
             response.redirect('/');
         } else {
+
             var game_data = { gameID: gameID, role: role, username: username, cards: g['cards'] };
             if (role === 'BSM' || role === 'RSM') {
                 response.render('spyMaster.html', game_data);
