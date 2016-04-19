@@ -100,6 +100,40 @@ window.addEventListener('load', function(){
 
 		*/
 	});
+
+	socket.on('rejoin', function(turn, timer, guessedCards) {
+		$('#waiting').css('display', 'none');
+		$('#cards').css('opacity', '1');
+		$('#controls').css('opacity', '1');
+
+		nextTurn(null, turn, timer);
+		clearInterval(interv);
+		interv = window.setInterval(timeTick, 1000);
+
+		var spymasterView = true;
+		var role = meta('role');
+		if (role === 'BFA' || role === 'RFA') {
+			spymasterView = false;
+		}
+
+		if (spymasterView) {
+			// BOX SHADOW STYLE
+			$('.R').css('box-shadow', '0 0 5px 3px rgb(202,0,32)');
+			$('.B').css('box-shadow', '0 0 5px 3px rgb(5,113,176)');
+			$('.assassin').css('box-shadow', '0 0 5px 3px #222');
+
+			$('.R').css('background-color', 'rgb(255,204,139)');
+			$('.B').css('background-color', 'rgb(185,204,189)');
+			$('.assassin').css('background-color', 'rgb(215,204,149)');
+		} else {
+			$('.card').css('box-shadow', '0 0 5px 2px #ffea9f');
+		}
+
+		for (var i=0; i<guessedCards.length; i++) {
+			var c = guessedCards[i];
+			revealCard(c['index'], c['team']);
+		}
+	});
 	
 	/* ========================================================
      * ===================  Game-Play Events  =================
@@ -174,7 +208,7 @@ window.addEventListener('load', function(){
 	});
 
 	// HANDLE THE USER REFRESHING OR SNEAKING INTO THE GAME
-	socket.emit('reloadGame', meta('gameID'), meta('role'), meta('username'));
+	//socket.emit('reloadGame', meta('gameID'), meta('role'), meta('username'));
 
 	socket.emit('getPlayers', meta('gameID'), function(players) {
 		for (var i=0; i<players.length; i++) {
@@ -223,10 +257,20 @@ window.addEventListener('load', function(){
 		$('#messages ul').append('<li class="message"><span class="chatName">'+user+':</span> '+message+'</li>');
 		$('#messages').scrollTop($('#messages')[0].scrollHeight);
 	});
-
-	/*window.onbeforeunload = function() {
-		return "Are you really sure?\nI don't know why anyone would want to leave my beautiful website!";
+	
+	/*window.onunload = window.onbeforeunload = function() {
+		return "Are you really sure?\nRefreshing the page may make you lose game data!";
 	};*/
+	window.addEventListener("beforeunload", function (e) {
+		console.log('REFRESH');
+		var confirmationMessage = "Are you really sure?\nRefreshing the page may make you lose game data!";
+		e.preventDefault();
+		e.returnValue = confirmationMessage;     // Gecko, Trident, Chrome 34+
+		return confirmationMessage;              // Gecko, WebKit, Chrome <34
+	});
+	/*$(window).on('beforeunload', function) {
+		return "Are you really sure?\nRefreshing the page may disconnect you from the game!";
+	});*/
 
 }, false);
 

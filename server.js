@@ -219,14 +219,31 @@ db.once('open', function() {
                     io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
                 } else if (g.gameStatus === 'active') {
                     //Joining or REFRESHING in the middle of the game
-                    socket.emit('rejoin');
+                    var guessedCards = [];
+                    for (var i=0; i<g.cards.length; i++) {
+                        if (g.cards[i].guessed === true) {
+                            guessedCards.push({ index : g.cards[i].index, team : g.cards[i].team });
+                        }
+                    }
+                    var time = g.clueTimer;
+                    if (g.turn[1] === 'F') {
+                        time = g.guessTimer;
+                    }
+                    socket.emit('rejoin', g.turn, time, guessedCards);
                 }
             }
         });
 
+        /*
         socket.on('reloadGame', function(gameID, role, username) {
-            var g = gameData[gameID]
-        })
+            var g = gameData[gameID];
+            if (g !== undefined && g.roles.indexOf(role) === -1) {
+                console.log('ALREADY IN THE GAME');
+                if (g.gameStatus === 'active') {
+                    //send along the current state
+                }
+            }
+        })*/
 
         socket.on('clue', function(clue, role) {
             var gameID = socket.gameID;
