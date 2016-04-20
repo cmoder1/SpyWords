@@ -1,8 +1,20 @@
 var socket = io.connect();
+var idleTime = 0;
 var refreshOverride = true;
 // This code will be executed when the page finishes loading
 window.addEventListener('load', function(){
 	
+	//Increment the idle time counter every minute.
+    var idleInterval = setInterval(timerIncrement, 60000); // 1/6 minute
+
+    //Zero the idle timer on mouse movement.
+    $(document).mousemove(function (e) {
+        idleTime = 0;
+    });
+    $(document).keypress(function (e) {
+        idleTime = 0;
+    });
+
 	$('#cards').css('opacity', '0.5');
 	$('#controls').css('opacity', '0.5');
 
@@ -367,4 +379,13 @@ function timeTick() {
 	var minuteText = minutes+'';
 	$('#seconds').html(secondText);
 	$('#minutes').html(minuteText);
+}
+
+function timerIncrement() {
+	console.log('INACTIVE: ' + idleTime + ' minutes');
+    idleTime++;
+    if (idleTime > 10) { // 10 minutes
+    	refreshOverride = false;
+        window.location.href = '/idle';
+    }
 }

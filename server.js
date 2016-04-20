@@ -412,6 +412,9 @@ db.once('open', function() {
         }
     });
 
+    app.get('/idle', function(request, response){
+        response.render('idle.html');
+    });
     // Catchall page - Home
     app.get('*', function(request, response){
         // Display the home screen
