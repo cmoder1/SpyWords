@@ -155,6 +155,7 @@ function timerIncrement() {
 	console.log('INACTIVE: ' + idleTime + ' minutes');
     idleTime++;
     if (idleTime > 10) { // 10 minutes
-        window.location.href = '/idle';
+    	socket.disconnect();
+        //window.location.href = '/idle';
     }
 }

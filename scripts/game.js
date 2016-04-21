@@ -386,6 +386,7 @@ function timerIncrement() {
     idleTime++;
     if (idleTime > 10) { // 10 minutes
     	refreshOverride = false;
-        window.location.href = '/idle';
+    	socket.disconnect();
+        //window.location.href = '/idle';
     }
 }
