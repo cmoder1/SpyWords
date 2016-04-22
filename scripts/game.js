@@ -34,8 +34,8 @@ window.addEventListener('load', function(){
 	socket.on('restart', function(turn, timer, newCards) {
 
 		setMeta('currentTurn', turn);
-		$('#blueScore').html('9');
-		$('#redScore').html('8');
+		//$('#blueScore').html('9');
+		//$('#redScore').html('8');
 		$('#gameOver').css('display', 'none');
 		$('#cards').empty();
 		for (var i=0; i<newCards.length; i++) {
@@ -251,6 +251,8 @@ window.addEventListener('load', function(){
  * ======================================================== */
 
 function startGameDisplay(interv, turn, timer) {
+	$('#blueScore').html('9');
+	$('#redScore').html('8');
 	console.log('Game Started');
 	colorPlayer(meta('currentTurn'), true);
 
@@ -391,7 +393,7 @@ function gameOver(winner) {
 	if (winner === 'B') {
 		team = 'Blue Team';
 	}
-	$('#gameOver').prepend('<p>The '+team+' wins!</p>');
+	$('#gameOver p').html('The '+team+' wins!');
 	$('#gameOver').css('display', 'block');
 	socket.emit('revealUnguessedCards', function(cards) {
 		for(var i=0; i<cards.length; i++) {
