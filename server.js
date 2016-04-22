@@ -269,7 +269,11 @@ db.once('open', function() {
                 }
                 callback(valid);
             } else {
-                callback('The clue must be a single word and a number greater than zero');
+                if (clue.split(' ').length !== 1 || clue.split(' ').join('') === '' ) {
+                    callback('Your clue must consist of a single word');
+                } else {
+                    callback('number');
+                }
             }
         });
 
@@ -319,6 +323,32 @@ db.once('open', function() {
                 }
             }
             callback(unguessedCards);
+        });
+
+        socket.on('newGame', function() {
+            console.log('STARTING A NEW GAME!');
+            var gameID = socket.gameID;
+            var g = gameData[gameID];
+            if (g === undefined) {
+                return;
+            }
+            generateWords(function(words) {
+
+                var teams = assignCards();
+                var cards = [];
+
+                for (var i=0; i<words.length; i++) {
+                    cards.push({ 'word': words[i], 'team': teams[i], 'guessed': false, 'index': i });
+                }
+
+                g.cards = cards;
+                g.turn = g.order[0];
+                g.guessCount = 0;
+                g.gameStatus = 'active';
+                //callback(true);
+                io.sockets.in(gameID).emit('restart', g.turn, g.clueTimer, g.cards);
+
+            });
         });
 
         socket.on('message', function(user, message) {

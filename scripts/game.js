@@ -30,6 +30,46 @@ window.addEventListener('load', function(){
 			revealCard(c['index'], c['team']);
 		}
 	});
+
+	socket.on('restart', function(turn, timer, newCards) {
+
+		setMeta('currentTurn', turn);
+		$('#blueScore').html('9');
+		$('#redScore').html('8');
+		$('#gameOver').css('display', 'none');
+		$('#cards').empty();
+		for (var i=0; i<newCards.length; i++) {
+			var c = newCards[i];
+			if (meta('role')[1] == 'S') {
+				$('#cards').append("<div class='card "+c.team+" "+c.index+"'><p>"+c.word+"</p></div>");
+			} else {
+				$('#cards').append("<div class='card "+c.index+"'><p>"+c.word+"</p></div>");
+			}
+		}
+
+		$('.card').on('click', function(e) {
+			var myRole = meta('role');
+			if ((myRole === 'BFA' || myRole === 'RFA') && myRole === meta('currentTurn')) {
+				var card = e.target;
+
+				var index = -1;
+				var word = '';
+				if (card.tagName === 'DIV') {
+					word = $($(card).children()[0]).html();
+					index = $(card).attr('class').split(' ')[1];
+				} else {
+					word = $(card).html();
+					index = $($(card).parent()).attr('class').split(' ')[1];
+				}
+				console.log(word);
+				console.log(index);
+				socket.emit('guessWord', index, $('#clue').html(), myRole);
+				//socket.emit('cardClick', ...) // Perhaps give each card an ID to pass along
+			}
+		});
+
+		startGameDisplay(interv, turn, timer);
+	});
 	
 	/* ========================================================
      * ===================  Game-Play Events  =================
@@ -81,12 +121,25 @@ window.addEventListener('load', function(){
 			socket.emit('validateClue', clue, num*1, function(valid) {
 				if (valid === 'valid') {
 					socket.emit('clue', clue+' '+num, meta('role'));
+					$('#clueWord').css('box-shadow', 'none');
+					$('#clueNum').css('box-shadow', 'none');
+					$('#clueNum').css('border', 'solid 1px #bababa');
+					$('#clueWord').css('border', 'solid 1px #bababa');
+					$('#clueWord').val('');
+					$('#clueNum').val('0');
+				} else if (valid === 'number') {
+					$('#clueNum').css('box-shadow', 'inset 0 0 2px 2px red');
+					$('#clueWord').css('box-shadow', 'none');
+					$('#clueNum').css('border', '1px solid red');
+					$('#clueWord').css('border', 'solid 1px #bababa');
+					alert('Your clue number must be greater than zero');
 				} else {
-					console.log('Invalid clue');
+					$('#clueWord').css('border', '1px solid red');
+					$('#clueNum').css('border', 'solid 1px #bababa');
+					$('#clueWord').css('box-shadow', 'inset 0 0 2px 2px red');
+					$('#clueNum').css('box-shadow', 'none');
 					alert(valid);
 				}
-				$('#clueWord').val('');
-				$('#clueNum').val('0');
 			});
 		}
 	});
@@ -168,6 +221,11 @@ window.addEventListener('load', function(){
 		$('#messages ul').append('<li class="message"><span class="chatName">'+user+':</span> '+message+'</li>');
 		$('#messages').scrollTop($('#messages')[0].scrollHeight);
 	});
+
+	$('#newGame').on('click', function(e) {
+		e.preventDefault();
+		socket.emit('newGame');
+	})
 	
 	/*window.onunload = window.onbeforeunload = function() {
 		return "Are you really sure?\nRefreshing the page may make you lose game data!";
@@ -194,6 +252,7 @@ window.addEventListener('load', function(){
 
 function startGameDisplay(interv, turn, timer) {
 	console.log('Game Started');
+	colorPlayer(meta('currentTurn'), true);
 
 	$('#waiting').css('display', 'none');
 	$('#cards').css('opacity', '1');
@@ -210,6 +269,7 @@ function startGameDisplay(interv, turn, timer) {
 	}
 
 	if (spymasterView) {
+		$('.card').css('cursor', 'default');
 		// BOX SHADOW STYLE
 		$('.R').css('box-shadow', '0 0 5px 3px rgb(202,0,32)');
 		$('.B').css('box-shadow', '0 0 5px 3px rgb(5,113,176)');
@@ -253,6 +313,10 @@ function revealCard(wordIdx, cardTeam) {
 		$($('.'+wordIdx).children()).css('opacity', '0.2');
 	} else {
 		//alert('Game Over!');
+		$('.'+wordIdx).css('background-color', 'rgb(69,64,59)');
+		$('.'+wordIdx).css('box-shadow', 'none');
+		$($('.'+wordIdx).children()).css('background-color', 'rgb(235,235,235)');
+		$($('.'+wordIdx).children()).css('opacity', '0.2');
 		if (meta('currentTurn')[0] === 'B') {
 			gameOver('R');
 		} else {
@@ -314,8 +378,10 @@ function colorPlayer(role, bold) {
 }
 
 function gameOver(winner) {
-	$('#cards').css('opacity', '0.5');
-	$('#controls').css('opacity', '0.5');
+	colorPlayer(meta('currentTurn'), false);
+	$('.card').css('cursor', 'default');
+	$('#cards').css('opacity', '0.8');
+	$('#controls').css('opacity', '0.3');
 	$('#seconds').html('00');
 	$('#minutes').html('0');
 	setMeta('currentTurn', 'gameOver');
