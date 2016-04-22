@@ -218,7 +218,7 @@ window.addEventListener('load', function(){
 				$('#chat').animate({ opacity: 1 }, 300);
 			}
 		}
-		$('#messages ul').append('<li class="message"><span class="chatName">'+user+':</span> '+message+'</li>');
+		$('#messages ul').append('<li class="message"><span class="chatName">'+user+':</span> '+message+'</li><br>');
 		$('#messages').scrollTop($('#messages')[0].scrollHeight);
 	});
 

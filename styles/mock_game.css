@@ -463,7 +463,15 @@ h2 {
 
 .stats ul {
 	margin-top: 0px;
-	padding: 10px 5px 10px 20px;
+	padding: 10px 20px;
+}
+
+#messages li {
+	background-color: rgba(205,185,205,0.5);
+    display: inline-block;
+    padding: 3px 5px;
+    border-radius: 5px;
+    margin: 4px 2px;
 }
 
 .stats li {
