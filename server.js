@@ -6,6 +6,7 @@ var	bodyParser = require('body-parser');
 //var anyDB = require('any-db');
 var engines = require('consolidate');
 var mongoose = require('mongoose');
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 // Prepare variables
 //var conn = anyDB.createConnection('sqlite3://codenames.db');
@@ -284,6 +285,13 @@ db.once('open', function() {
             var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
             g.guessCount = 0;
             g.turn = nextRole;
+            var unguessedWords = [];
+            for (var i=0; i<g.cards.length; i++) {
+                if (g.cards[i].guessed === false) {
+                    unguessedWords.push(g.cards[i].word);
+                }
+            }
+            guessClue(clue.split(" ")[0], unguessedWords);
             io.sockets.in(gameID).emit('newClue', clue, role, nextRole, g.guessTimer);
         });
 
@@ -542,3 +550,59 @@ function assignCards() {
     return assignments;
 }
 
+function guessClue(clue, words) {
+
+    var guesses = [];
+
+    for (var i=0; i<words.length; i++) {
+        var word = words[i].toLowerCase();
+        var url = "http://conceptnet5.media.mit.edu/data/5.4/assoc/c/en/"+clue.toLowerCase()+"?filter=/c/en/"+word+"/.&limit=1";
+
+        request(url, function(result) {
+            if (result.similar.length !== 0) {
+                guesses.push({ word: result.similar[0][0].substring(6, result.similar[0][0].length), prob: result.similar[0][1] });
+                //console.log(guesses.length);
+            } else {
+                guesses.push({ word: 'NOTHING', prob: 0 });
+            }
+            if (guesses.length === words.length) {
+                submitGuess(guesses, words);
+            }
+        });
+    }
+
+    //while (guesses.length < words.length) { }
+    //console.log('DONE CHECKING WORD ASSOCIATIONS');
+}
+
+function submitGuess(guesses, words) {
+    guesses.sort(function(a, b) {
+        return b.prob - a.prob;
+    });
+    console.log(guesses);
+}
+
+// Send out a request to a given url, and call the callback with the received data
+function request(theURL, callback) {
+    // create a request object
+    var request = new XMLHttpRequest();
+
+    // specify the HTTP method, URL, and asynchronous flag
+    request.open('GET', theURL, true); 
+
+    // add an event handler
+    request.addEventListener('load', function(e){
+        if (request.status == 200) {
+            // do something with the loaded content
+            var content = request.responseText;
+            data = JSON.parse(content);
+            callback(data);
+        } else {
+            console.log('Something went wrong: ' + request.status);
+            // something went wrong, check the request status
+        }
+    }, false);
+
+    // Send the request
+    request.send(null);  
+}

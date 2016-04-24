@@ -381,6 +381,7 @@ function colorPlayer(role, bold) {
 
 function gameOver(winner) {
 	colorPlayer(meta('currentTurn'), false);
+	$('#clue').html('&mdash;');
 	$('.card').css('cursor', 'default');
 	$('#cards').css('opacity', '0.8');
 	$('#controls').css('opacity', '0.3');
