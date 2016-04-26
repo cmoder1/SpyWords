@@ -291,7 +291,8 @@ db.once('open', function() {
                     unguessedWords.push(g.cards[i].word);
                 }
             }
-            guessClue(clue.split(" ")[0], unguessedWords);
+            giveClue(g.cards, role[0]);
+            guessClue(clue.split(" ")[0], unguessedWords, submitGuess);
             io.sockets.in(gameID).emit('newClue', clue, role, nextRole, g.guessTimer);
         });
 
@@ -550,7 +551,71 @@ function assignCards() {
     return assignments;
 }
 
-function guessClue(clue, words) {
+function validClueWord(clue, cards) {
+    if (clue.match('[A-Za-z]*')[0] !== clue) {
+        return false;
+    }
+    for (var i=0; i<cards.length; i++) {
+        if (!cards[i].guessed) {
+            var w = cards[i].word.toLowerCase();
+            var c = clue.toLowerCase();
+            if (w.match('.*'+c+'.*') !== null || c.match('.*'+w+'.*') !== null) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function giveClue(cards, team) {
+    var posWords = [];
+    var negWords = [];
+    for (var i=0; i<cards.length; i++) {
+        var c = cards[i];
+        if (c.guessed === false) {
+            if (c.team === team) {
+                posWords.push(c.word.toLowerCase());
+            } else if (c.team !== 'neutral') {
+                negWords.push(c.word.toLowerCase());
+            }
+        }
+    }
+    // Don't overdo it with negative weighting
+    negWords = negWords.slice(0,posWords.length);
+
+    var pos = posWords.join(',');
+    var neg = negWords.join('@-1,')+'@-1';
+    var url = 'http://conceptnet5.media.mit.edu/data/5.4/assoc/list/en/'+pos+','+neg+'?limit=20&filter=/c/en';
+
+    request(url, function(result) {
+        console.log(url);
+        //console.log(result);
+        if (result.similar.length !== 0) {
+            //console.log('ROBOT CLUE');
+            //console.log(result.similar);
+            for (var i=0; i<result.similar.length; i++) {
+                var clueWord = result.similar[i][0].substring(6, result.similar[i][0].length);
+                if (validClueWord(clueWord, cards)) {
+                    //console.log('ROBOT CLUE: '+clueWord.toUpperCase());
+                    guessClue(clueWord.toLowerCase(), posWords, function(guesses, words) {
+                        var count = 0;
+                        for (var j=0; j<guesses.length; j++) {
+                            if (guesses[j].prob >= 0.075) {
+                                count++;
+                            }
+                        }
+                        count = Math.max(count, 1);
+                        console.log('Computer clue: ' + clueWord + ' ' + count);
+                    });
+                    return;
+                }
+            }
+        }
+    });
+
+}
+
+function guessClue(clue, words, callback) {
 
     var guesses = [];
 
@@ -566,7 +631,8 @@ function guessClue(clue, words) {
                 guesses.push({ word: 'NOTHING', prob: 0 });
             }
             if (guesses.length === words.length) {
-                submitGuess(guesses, words);
+                //submitGuess(guesses, words);
+                callback(guesses, words);
             }
         });
     }
