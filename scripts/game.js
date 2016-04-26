@@ -32,7 +32,7 @@ window.addEventListener('load', function(){
 	});
 
 	socket.on('restart', function(turn, timer, newCards) {
-
+		//clearInterval(interv);
 		setMeta('currentTurn', turn);
 		//$('#blueScore').html('9');
 		//$('#redScore').html('8');
@@ -68,7 +68,7 @@ window.addEventListener('load', function(){
 			}
 		});
 
-		startGameDisplay(interv, turn, timer);
+		startGameDisplay(null, turn, timer);
 	});
 	
 	/* ========================================================
@@ -184,6 +184,16 @@ window.addEventListener('load', function(){
 		$('#'+role).html('<p>'+name+'</p>');
 	});
 
+	$('.role').on('click', function(e) {
+		console.log($('#'+$(e.target).attr('id')+' p').html() + ': '+$(e.target).attr('id'));
+		if ($('#'+$(e.target).attr('id')+' p').html() === '-') {
+			console.log('REPLACE WITH ROBOT');
+			socket.emit('setRobotPlayer', $(e.target).attr('id'), function() {
+				$('#'+$(e.target).attr('id')+' p').html('Computer');
+			});
+		}
+	});
+
 	$('#chat p').on('click', function() {
 		if ($('#chat').css('bottom') === '0px') {
 			//$('#chat').css('bottom', '-360px');
@@ -261,8 +271,10 @@ function startGameDisplay(interv, turn, timer) {
 	$('#controls').css('opacity', '1');
 
 	nextTurn(null, turn, timer);
-	clearInterval(interv);
-	interv = window.setInterval(timeTick, 1000);
+	if (interv !== null) {
+		clearInterval(interv);
+		interv = window.setInterval(timeTick, 1000);
+	}
 
 	var spymasterView = true;
 	var role = meta('role');
@@ -324,6 +336,10 @@ function revealCard(wordIdx, cardTeam) {
 		} else {
 			gameOver('B');
 		}
+	}
+	for (var i=0; i<2; i++) {
+		$('.'+wordIdx).animate({opacity: 0.5}, 500);
+		$('.'+wordIdx).animate({opacity: 1}, 500);
 	}
 }
 

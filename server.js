@@ -6,6 +6,9 @@ var	bodyParser = require('body-parser');
 //var anyDB = require('any-db');
 var engines = require('consolidate');
 var mongoose = require('mongoose');
+/*var suspend = require('suspend'),
+    resume = suspend.resume;*/
+//var wait = require('wait.for');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 // Prepare variables
@@ -116,8 +119,10 @@ db.once('open', function() {
 
                     var order = ['BSM', 'BFA', 'RSM', 'RFA'];
                     var roles = ['BSM', 'BFA', 'RSM', 'RFA'];
+                    var human = [true, true, true, true];
                     var turn = 'BSM';
                     if (numPlayers === '2') {
+                        human = [true, true];
                         if (claimedRole[0] === 'B') {
                             roles = ['BSM', 'BFA'];
                             order = ['BSM', 'BFA'];
@@ -127,6 +132,7 @@ db.once('open', function() {
                             turn = 'RSM';
                         }
                     }
+                    order.human = human;
                     // Remove the claimed role from available list of roles
                     //roles.splice(roles.indexOf(claimedRole), 1);
 
@@ -250,6 +256,24 @@ db.once('open', function() {
             }
         });
 
+        socket.on('setRobotPlayer', function(role, callback) {
+            var gameID = socket.gameID;
+            var g = gameData[gameID];
+            //callback();
+            var p = { username: 'Computer', team: role[0], role: role };
+            g.players.push(p);
+            g.roles.splice(g.roles.indexOf(role), 1);
+            g.order.human[g.order.indexOf(role)] = false;
+            //g.save();
+            io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
+            io.sockets.in(gameID).emit('newPlayer', role, 'Computer');
+
+            if (g !== undefined && g.roles.length === 0) {//g.players.length == g.numPlayers) {//clients.length === 4) {
+                g.gameStatus = 'active';
+                io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
+            }
+        });
+
         socket.on('validateClue', function(clue, num, callback) {
             var gameID = socket.gameID;
             var g = gameData[gameID];
@@ -291,10 +315,74 @@ db.once('open', function() {
                     unguessedWords.push(g.cards[i].word);
                 }
             }
-            giveClue(g.cards, role[0]);
-            guessClue(clue.split(" ")[0], unguessedWords, submitGuess);
+            //giveClue(g.cards, role[0]);
+            //guessClue(clue.split(" ")[0], unguessedWords, submitGuess);
             io.sockets.in(gameID).emit('newClue', clue, role, nextRole, g.guessTimer);
+            console.log(nextRole);
+            if (!g.order.human[g.order.indexOf(nextRole)]) {
+                console.log('COMPUTER GUESSING...');
+                // It's the computer's time to shine!
+                guessClue(clue.split(" ")[0], unguessedWords, function(guesses, words) {
+                    guesses.sort(function(a, b) {
+                        return b.prob - a.prob;
+                    });
+                    console.log(guesses);
+                    var keepGuessing = true;
+                    var index = 0;
+                    while (keepGuessing) {
+                        var guess = guesses[index].word;
+                        var cardTeam = '';
+                        var wordIdx = -1;
+                        var cardsLeft = [];
+                        for (var i=0; i<g.cards.length; i++) {
+                            if (g.cards[i].word.toLowerCase() === guess.toLowerCase()) {
+                                cardTeam = g.cards[i].team;
+                                wordIdx = g.cards[i].index;
+                            }
+                            if (g.cards[i].guessed === false) {
+                                cardsLeft.push(g.cards[i]);
+                            }
+                        }
+                        if (wordIdx === -1) {
+                            var c = cardsLeft[Math.floor(Math.random() * cardsLeft.length)];
+                            wordIdx = c.index;
+                            guess = c.word;
+                            cardTeam = c.team;
+                        }
+
+                        g.guessCount++;
+                        var nextNextRole = g.order[(g.order.indexOf(nextRole)+1) % g.order.length];
+                        //var cardTeam = g.cards[wordIdx].team;
+                        g.cards[wordIdx].guessed = true;
+                        console.log('Guess '+g.guessCount+' of '+clue.split(' ')[1]+': '+guess);
+                        if (clue.split(' ')[1]*1 === g.guessCount || nextRole[0] !== cardTeam) {
+                            g.turn = nextNextRole;
+                            io.sockets.in(gameID).emit('lastGuess', wordIdx, cardTeam, nextRole, nextNextRole, g.clueTimer);
+                            keepGuessing = false;
+                            if (!g.order.human[g.order.indexOf(nextNextRole)]) {
+                                // It's the computer's time to shine! Let's give a clue...
+                                giveClue(g.cards, nextNextRole[0]);
+                            }
+                        } else {
+                            io.sockets.in(gameID).emit('newGuess', wordIdx, cardTeam);
+                        }
+                        //yield setTimeout(suspend.resume(), 1000); // 1 second passes..
+                        //wait.miliseconds(1000);
+                        sleep(1000);
+                        index++;
+                    }
+                });
+            }
         });
+
+        function sleep(milliseconds) {
+            var start = new Date().getTime();
+            for (var i = 0; i < 1e7; i++) {
+                if ((new Date().getTime() - start) > milliseconds){
+                    break;
+                }
+            }
+        }
 
         socket.on('guessWord', function(wordIdx, clue, role) {
             var gameID = socket.gameID;
@@ -309,6 +397,10 @@ db.once('open', function() {
                 if (clue.split(' ')[1]*1 === (g.guessCount-1) || role[0] !== cardTeam) {
                     g.turn = nextRole;
                     io.sockets.in(gameID).emit('lastGuess', wordIdx, cardTeam, role, nextRole, g.clueTimer);
+                    if (!g.order.human[g.order.indexOf(nextRole)]) {
+                        // It's the computer's time to shine! Let's give a clue...
+                        giveClue(g.cards, nextRole[0]);
+                    }
                 } else {
                     io.sockets.in(gameID).emit('newGuess', wordIdx, cardTeam);
                 }
@@ -321,6 +413,10 @@ db.once('open', function() {
             var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
             g.turn = nextRole;
             io.sockets.in(gameID).emit('newClue', '&mdash;', role, nextRole, g.clueTimer);
+            if (!g.order.human[g.order.indexOf(nextRole)]) {
+                // It's the computer's time to shine! Let's give a clue...
+                giveClue(g.cards, nextRole[0]);
+            }
         });
 
         socket.on('revealUnguessedCards', function(callback) {
@@ -377,7 +473,8 @@ db.once('open', function() {
                 while (i<g.players.length && g.players[i].username !== socket.username) { i++; }
                 if (i<g.players.length) { g.players.splice(i,1); }
                 console.log(g.roles);
-                if (g.roles.length === g.numPlayers*1) {
+                var clients = io.sockets.adapter.rooms[gameID];
+                if (g.roles.length === g.numPlayers*1 || clients === undefined || clients.length === 0) {
                     delete gameData[gameID];
                     console.log('DELETED GAME: '+gameID);
                 } else {
