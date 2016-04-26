@@ -337,10 +337,12 @@ function revealCard(wordIdx, cardTeam) {
 			gameOver('B');
 		}
 	}
+	/*
 	for (var i=0; i<2; i++) {
 		$('.'+wordIdx).animate({opacity: 0.5}, 500);
 		$('.'+wordIdx).animate({opacity: 1}, 500);
 	}
+	*/
 }
 
 function nextTurn(prevRole, currRole, time) {

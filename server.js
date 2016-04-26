@@ -239,6 +239,26 @@ db.once('open', function() {
                 if (g.gameStatus === 'pregame') {
                     g.gameStatus = 'active';
                     io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
+                    console.log(g.order);
+                    if (!g.order.human[0]) {
+                        console.log('COMPUTER CLUE');
+                        // It's the computer's time to shine! Let's give a clue...
+                        giveClue(g.cards, g.order[0][0], function(clueWord, posWords) {
+                            guessClue(clueWord.toLowerCase(), posWords, function(guesses, words) {
+                                var count = 0;
+                                for (var j=0; j<guesses.length; j++) {
+                                    if (guesses[j].prob >= 0.075) {
+                                        count++;
+                                    }
+                                }
+                                count = Math.max(count, 1);
+                                var clue = clueWord[0].toUpperCase()+clueWord.substring(1, clueWord.length).toLowerCase();
+                                var nextRole = g.order[1];
+                                io.sockets.in(gameID).emit('newClue', clue+' '+count, g.order[0], nextRole, g.guessTimer);
+                                console.log('Computer clue: ' + clueWord + ' ' + count);
+                            });
+                        });
+                    }
                 } else if (g.gameStatus === 'active') {
                     //Joining or REFRESHING in the middle of the game
                     var guessedCards = [];
@@ -271,6 +291,25 @@ db.once('open', function() {
             if (g !== undefined && g.roles.length === 0) {//g.players.length == g.numPlayers) {//clients.length === 4) {
                 g.gameStatus = 'active';
                 io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
+                if (!g.order.human[0]) {
+                    console.log('COMPUTER CLUE');
+                    // It's the computer's time to shine! Let's give a clue...
+                    giveClue(g.cards, g.order[0][0], function(clueWord, posWords) {
+                        guessClue(clueWord.toLowerCase(), posWords, function(guesses, words) {
+                            var count = 0;
+                            for (var j=0; j<guesses.length; j++) {
+                                if (guesses[j].prob >= 0.075) {
+                                    count++;
+                                }
+                            }
+                            count = Math.max(count, 1);
+                            var clue = clueWord[0].toUpperCase()+clueWord.substring(1, clueWord.length).toLowerCase();
+                            var nextRole = g.order[1];
+                            io.sockets.in(gameID).emit('newClue', clue+' '+count, g.order[0], nextRole, g.guessTimer);
+                            console.log('Computer clue: ' + clueWord + ' ' + count);
+                        });
+                    });
+                }
             }
         });
 
@@ -361,14 +400,24 @@ db.once('open', function() {
                             keepGuessing = false;
                             if (!g.order.human[g.order.indexOf(nextNextRole)]) {
                                 // It's the computer's time to shine! Let's give a clue...
-                                giveClue(g.cards, nextNextRole[0]);
+                                giveClue(g.cards, nextNextRole[0][0], function(clueWord, posWords) {
+                                    guessClue(clueWord.toLowerCase(), posWords, function(guesses, words) {
+                                        var count = 0;
+                                        for (var j=0; j<guesses.length; j++) {
+                                            if (guesses[j].prob >= 0.075) {
+                                                count++;
+                                            }
+                                        }
+                                        count = Math.max(count, 1);
+                                        var clue = clueWord[0].toUpperCase()+clueWord.substring(1, clueWord.length).toLowerCase();
+                                        io.sockets.in(gameID).emit('newClue', clue+' '+count, role, nextRole, g.guessTimer);
+                                        console.log('Computer clue: ' + clueWord + ' ' + count);
+                                    });
+                                });
                             }
                         } else {
                             io.sockets.in(gameID).emit('newGuess', wordIdx, cardTeam);
                         }
-                        //yield setTimeout(suspend.resume(), 1000); // 1 second passes..
-                        //wait.miliseconds(1000);
-                        sleep(1000);
                         index++;
                     }
                 });
@@ -399,7 +448,21 @@ db.once('open', function() {
                     io.sockets.in(gameID).emit('lastGuess', wordIdx, cardTeam, role, nextRole, g.clueTimer);
                     if (!g.order.human[g.order.indexOf(nextRole)]) {
                         // It's the computer's time to shine! Let's give a clue...
-                        giveClue(g.cards, nextRole[0]);
+                        giveClue(g.cards, nextRole[0][0], function(clueWord, posWords) {
+                            guessClue(clueWord.toLowerCase(), posWords, function(guesses, words) {
+                                var count = 0;
+                                for (var j=0; j<guesses.length; j++) {
+                                    if (guesses[j].prob >= 0.075) {
+                                        count++;
+                                    }
+                                }
+                                count = Math.max(count, 1);
+                                var clue = clueWord[0].toUpperCase()+clueWord.substring(1, clueWord.length).toLowerCase();
+                                var nextNextRole = g.order[(g.order.indexOf(nextRole)+1) % g.order.length];
+                                io.sockets.in(gameID).emit('newClue', clue+' '+count, nextRole, nextNextRole, g.guessTimer);
+                                console.log('Computer clue: ' + clueWord + ' ' + count);
+                            });
+                        });
                     }
                 } else {
                     io.sockets.in(gameID).emit('newGuess', wordIdx, cardTeam);
@@ -415,7 +478,21 @@ db.once('open', function() {
             io.sockets.in(gameID).emit('newClue', '&mdash;', role, nextRole, g.clueTimer);
             if (!g.order.human[g.order.indexOf(nextRole)]) {
                 // It's the computer's time to shine! Let's give a clue...
-                giveClue(g.cards, nextRole[0]);
+                giveClue(g.cards, nextRole[0][0], function(clueWord, posWords) {
+                    guessClue(clueWord.toLowerCase(), posWords, function(guesses, words) {
+                        var count = 0;
+                        for (var j=0; j<guesses.length; j++) {
+                            if (guesses[j].prob >= 0.075) {
+                                count++;
+                            }
+                        }
+                        count = Math.max(count, 1);
+                        var clue = clueWord[0].toUpperCase()+clueWord.substring(1, clueWord.length).toLowerCase();
+                        var nextNextRole = g.order[(g.order.indexOf(nextRole)+1) % g.order.length];
+                        io.sockets.in(gameID).emit('newClue', clue+' '+count, nextRole, nextNextRole, g.guessTimer);
+                        console.log('Computer clue: ' + clueWord + ' ' + count);
+                    });
+                });
             }
         });
 
@@ -664,7 +741,7 @@ function validClueWord(clue, cards) {
     return true;
 }
 
-function giveClue(cards, team) {
+function giveClue(cards, team, callback) {
     var posWords = [];
     var negWords = [];
     for (var i=0; i<cards.length; i++) {
@@ -694,16 +771,7 @@ function giveClue(cards, team) {
                 var clueWord = result.similar[i][0].substring(6, result.similar[i][0].length);
                 if (validClueWord(clueWord, cards)) {
                     //console.log('ROBOT CLUE: '+clueWord.toUpperCase());
-                    guessClue(clueWord.toLowerCase(), posWords, function(guesses, words) {
-                        var count = 0;
-                        for (var j=0; j<guesses.length; j++) {
-                            if (guesses[j].prob >= 0.075) {
-                                count++;
-                            }
-                        }
-                        count = Math.max(count, 1);
-                        console.log('Computer clue: ' + clueWord + ' ' + count);
-                    });
+                    callback(clueWord, posWords);
                     return;
                 }
             }
