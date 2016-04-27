@@ -162,7 +162,8 @@ window.addEventListener('load', function(){
 
 	socket.emit('waiting', meta('gameID'), meta('role'), meta('username'));
 	socket.on('roleTaken', function() {
-		location.href = '/';
+		// CHANGED FOR TESTING PURPOSES!!!!!!
+		//location.href = '/';
 	});
 	// HANDLE THE USER REFRESHING OR SNEAKING INTO THE GAME
 	//socket.emit('reloadGame', meta('gameID'), meta('role'), meta('username'));

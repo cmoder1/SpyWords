@@ -595,7 +595,8 @@ db.once('open', function() {
         var g = gameData[gameID];
         if (g === null || g === undefined) {
             console.log('This game has not been created!');
-            response.redirect('/');
+            createGame(gameID, 4, role);
+            response.redirect('/'+gameID+'/'+role+'/'+username);
         } else {
 
             var game_data = { gameID: gameID, role: role, username: username, cards: g['cards'] };
@@ -671,6 +672,60 @@ function generateWords(callback) {
 
         callback(chosenWords);
     });
+}
+
+function createGame(gameID, numPlayers, claimedRole) {
+    if (gameData[gameID] !== undefined) {
+        console.log('USED GAME');
+        //callback(false);
+    } else {
+        // Generate a set of words for the new game
+        generateWords(function(words) {
+
+            // Assemble all of the card data
+            var teams = assignCards();
+            var card_data = [];
+            for (var i=0; i<words.length; i++) {
+                card_data.push({ 'word': words[i], 'team': teams[i], 'guessed': false, 'index': i });
+            }
+
+            // Establish available roles and turn order
+            var order = ['BSM', 'BFA', 'RSM', 'RFA'];
+            var roles = ['BSM', 'BFA', 'RSM', 'RFA'];
+            var human = [true, true, true, true];
+            var turn = 'BSM';
+            if (numPlayers === '2') {
+                human = [true, true];
+                if (claimedRole[0] === 'B') {
+                    roles = ['BSM', 'BFA'];
+                    order = ['BSM', 'BFA'];
+                } else {
+                    roles = ['RSM', 'RFA'];
+                    order = ['RSM', 'RFA'];
+                    turn = 'RSM';
+                }
+            }
+            order.human = human;
+
+            // Create a new game object with the given settings
+            var g = {
+                gameID: gameID,
+                cards: card_data,
+                numPlayers: numPlayers,
+                players: [],
+                roles: roles,
+                order: order,
+                turn: turn,
+                clueTimer: '2:30',
+                guessTimer: '2:30',
+                guessCount: 0,
+                gameStatus: 'pregame'
+            };
+            gameData[gameID] = g;
+            //callback(true);
+
+        });
+    }
 }
 
 /* ========================================================
