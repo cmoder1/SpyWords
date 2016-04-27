@@ -60,56 +60,63 @@ db.once('open', function() {
     var Game = mongoose.model('Game', gameSchema);
 
     /* ========================================================
-     * =                                                      =
-     * =                 Socket Communications                =
-     * =                                                      =
+     * ================  Socket Communications  ===============
      * ======================================================== */
 
     io.sockets.on('connection', function(socket){
+        // clients emit this when they join new rooms
+        socket.on('join', function(){
+            console.log('TODO');
+        });
 
-
-        /* ========================================================
-         * ================  Home Screen Sockets  =================
-         * ======================================================== */
-
-        // Join the room of home screens
         socket.on('joinHome', function(callback){
             socket.join('Home');
             callback();
         });
 
-        // Check to see if the game exists or is already full
+        // Check to see if the game is already full
         socket.on('validateName', function(gameID, callback) {
-            // Try finding the game data
+            
             var g = gameData[gameID];
             if (g === undefined) {
-                // The game doesn't exist, and thus is a valid name and not full
                 callback(true, false);
             } else {
-                // The game exists and may be full
                 callback(false, g.roles.length === 0);
             }
-
+            /*Game.find({ gameID: gameID }, function(err, g) {
+                //console.log(g);
+                if (g.length === 0) {
+                    callback(true);
+                } else {
+                    callback(false);
+                }
+            });*/
         });
 
-        // Create a new game with the given settings
+        socket.on('getRoles', function(gameID, callback) {
+            
+            var g = gameData[gameID];
+            callback(g['roles']);
+            /*Game.findOne({ gameID: gameID }, function(err, g) {
+                //console.log(g);
+                callback(g.roles);
+            });*/
+        });
+
         socket.on('createGame', function(gameID, username, claimedRole, numPlayers, clueTime, guessTime, callback) {
-            // Check to ensure that the gameID is not being used
             if (gameData[gameID] !== undefined) {
                 console.log('USED GAME');
                 callback(false);
             } else {
-                // Generate a set of words for the new game
                 generateWords(function(words) {
 
-                    // Assemble all of the card data
                     var teams = assignCards();
-                    var card_data = [];
+                    var card_data = { 'cards' : [] };
+
                     for (var i=0; i<words.length; i++) {
-                        card_data.push({ 'word': words[i], 'team': teams[i], 'guessed': false, 'index': i });
+                        card_data['cards'].push({ 'word': words[i], 'team': teams[i], 'guessed': false, 'index': i });
                     }
 
-                    // Establish available roles and turn order
                     var order = ['BSM', 'BFA', 'RSM', 'RFA'];
                     var roles = ['BSM', 'BFA', 'RSM', 'RFA'];
                     var human = [true, true, true, true];
@@ -126,38 +133,44 @@ db.once('open', function() {
                         }
                     }
                     order.human = human;
+                    // Remove the claimed role from available list of roles
+                    //roles.splice(roles.indexOf(claimedRole), 1);
 
-                    // Create a new game object with the given settings
                     var g = {
                         gameID: gameID,
-                        cards: card_data,
+                        cards: card_data['cards'],
                         numPlayers: numPlayers,
-                        players: [],
+                        players: [],//{ name: username, team: claimedRole[0], role: claimedRole }],
                         roles: roles,
                         order: order,
                         turn: turn,
-                        clueTimer: clueTime,
-                        guessTimer: guessTime,
+                        clueTimer: clueTime,//'02:45',
+                        guessTimer: guessTime,//'02:30',
                         guessCount: 0,
                         gameStatus: 'pregame'
                     };
                     gameData[gameID] = g;
                     callback(true);
+                    /*var game = new Game({
+                        gameID: gameID,
+                        cards: card_data['cards'],
+                        numPlayers: numPlayers,
+                        players: [{ name: username, team: claimedRole[0], role: claimedRole }],
+                        roles: roles,
+                        turn: turn,
+                        clueTimer: clueTime,//'02:45',
+                        guessTimer: guessTime,//'02:30',
+                        gameOver: false
+                    });
+
+                    game.save(callback);*/
+
+                    //response.render('mock_game.html', card_data);
 
                 });
             }
         });
 
-        // Retrieve the available roles for a game and pass them to a callback
-        socket.on('getRoles', function(gameID, callback) {
-            var g = gameData[gameID];
-            // Call callback with the given game's available roles
-            if (g !== undefined) {
-                callback(g['roles']);
-            }
-        });
-
-        // Ensure that there is room in the game to join
         socket.on('joinGame', function(gameID, username, claimedRole, callback) { 
             var g = gameData[gameID];
             if (claimedRole === null || g === undefined) {
@@ -165,23 +178,47 @@ db.once('open', function() {
                 return;
             }
             callback(g.roles.length !== 0);
+            /*var p = { name: username, team: claimedRole[0], role: claimedRole };
+            g.players.push(p);
+            g.roles.splice(g.roles.indexOf(claimedRole), 1);
+            //g.save();
+            io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
+            io.sockets.in(gameID).emit('newPlayer', claimedRole, username);*/
+            /*Game.findOne({ gameID: gameID }, function(err, g) {
+                callback(g.roles.length === 0, claimedRole);
+                var p = { name: username, team: claimedRole[0], role: claimedRole };
+                g.players.push(p);
+                g.roles.splice(g.roles.indexOf(claimedRole), 1);
+                g.save();
+                io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
+                io.sockets.in(gameID).emit('newPlayer', claimedRole, username);
+            });*/
         });
 
+        socket.on('getPlayers', function(gameID, callback) {
+            /*Game.findOne({ gameID: gameID }, function(err, g) {
+                callback(g.players);
+            });*/
+            var g = gameData[gameID];
+            if (g !== undefined) {
+                console.log(g.players);
+                callback(g.players);
+            } else {
+                callback(null);
+            }
+        });
 
-        /* ========================================================
-         * =================  Game Screen Setup  ==================
-         * ======================================================== */
-
-
-        // Game client waiting for the game to start
         socket.on('waiting', function(gameID, role, username) {
-
-            // Join the room for the given gameID
             socket.join(gameID);
             socket.gameID = gameID;
             socket.role = role;
             socket.username = username;
-
+            /*Game.findOne({ gameID: gameID }, function(err, g) {
+                //var clients = io.sockets.adapter.rooms[gameID];
+                if (g.players.length === g.numPlayers) {//clients.length === 4) {
+                    io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
+                }
+            });*/
             var g = gameData[gameID];
             if (g !== undefined) {
                 console.log(g.roles);
@@ -190,29 +227,39 @@ db.once('open', function() {
                     socket.emit('roleTaken');
                     return;
                 }
-
-                // Add the player to the game and claim their role
                 var p = { username: username, team: role[0], role: role };
                 g.players.push(p);
                 g.roles.splice(g.roles.indexOf(role), 1);
-                
-                // Update the home and game clients of this change
+                //g.save();
                 io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
                 io.sockets.in(gameID).emit('newPlayer', role, username);
             }
 
-            // Check to see if all of the roles have been claimed, so the game can start
-            if (g !== undefined && g.roles.length === 0) {
+            if (g !== undefined && g.roles.length === 0) {//g.players.length == g.numPlayers) {//clients.length === 4) {
                 if (g.gameStatus === 'pregame') {
                     g.gameStatus = 'active';
                     io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
-                    
-                    // If computer is first player have them submit a clue
+                    console.log(g.order);
                     if (!g.order.human[0]) {
-                        computerClue(g, g.order[0]);
+                        console.log('COMPUTER CLUE');
+                        // It's the computer's time to shine! Let's give a clue...
+                        giveClue(g.cards, g.order[0][0], function(clueWord, posWords) {
+                            guessClue(clueWord.toLowerCase(), posWords, function(guesses, words) {
+                                var count = 0;
+                                for (var j=0; j<guesses.length; j++) {
+                                    if (guesses[j].prob >= 0.075) {
+                                        count++;
+                                    }
+                                }
+                                count = Math.max(count, 1);
+                                var clue = clueWord[0].toUpperCase()+clueWord.substring(1, clueWord.length).toLowerCase();
+                                var nextRole = g.order[1];
+                                io.sockets.in(gameID).emit('newClue', clue+' '+count, g.order[0], nextRole, g.guessTimer);
+                                console.log('Computer clue: ' + clueWord + ' ' + count);
+                            });
+                        });
                     }
                 } else if (g.gameStatus === 'active') {
-
                     //Joining or REFRESHING in the middle of the game
                     var guessedCards = [];
                     for (var i=0; i<g.cards.length; i++) {
@@ -229,48 +276,42 @@ db.once('open', function() {
             }
         });
 
-        // Retrieve all players in a game and pass to callback
-        socket.on('getPlayers', function(gameID, callback) {
-            var g = gameData[gameID];
-            // Pass along players if they exist
-            if (g !== undefined) {
-                callback(g.players);
-            } else {
-                callback(null);
-            }
-        });
-
-        // Add a robot player to the game
         socket.on('setRobotPlayer', function(role, callback) {
             var gameID = socket.gameID;
             var g = gameData[gameID];
             //callback();
-
-            // Add the computer player and submit update
             var p = { username: 'Computer', team: role[0], role: role };
             g.players.push(p);
             g.roles.splice(g.roles.indexOf(role), 1);
             g.order.human[g.order.indexOf(role)] = false;
+            //g.save();
             io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
             io.sockets.in(gameID).emit('newPlayer', role, 'Computer');
 
-            // Start the game if the robot fills the game
             if (g !== undefined && g.roles.length === 0) {//g.players.length == g.numPlayers) {//clients.length === 4) {
                 g.gameStatus = 'active';
                 io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
-
-                // If computer is first player have them submit a clue
                 if (!g.order.human[0]) {
-                    computerClue(g, g.order[0]);
+                    console.log('COMPUTER CLUE');
+                    // It's the computer's time to shine! Let's give a clue...
+                    giveClue(g.cards, g.order[0][0], function(clueWord, posWords) {
+                        guessClue(clueWord.toLowerCase(), posWords, function(guesses, words) {
+                            var count = 0;
+                            for (var j=0; j<guesses.length; j++) {
+                                if (guesses[j].prob >= 0.075) {
+                                    count++;
+                                }
+                            }
+                            count = Math.max(count, 1);
+                            var clue = clueWord[0].toUpperCase()+clueWord.substring(1, clueWord.length).toLowerCase();
+                            var nextRole = g.order[1];
+                            io.sockets.in(gameID).emit('newClue', clue+' '+count, g.order[0], nextRole, g.guessTimer);
+                            console.log('Computer clue: ' + clueWord + ' ' + count);
+                        });
+                    });
                 }
             }
         });
-
-
-        /* ========================================================
-         * =================  Game Play Control  ==================
-         * ======================================================== */
-
 
         socket.on('validateClue', function(clue, num, callback) {
             var gameID = socket.gameID;
@@ -299,35 +340,6 @@ db.once('open', function() {
                 }
             }
         });
-
-        // Send a clue for the given team
-        function computerClue(g, role) {
-            console.log('COMPUTER CLUE');
-            // It's the computer's time to shine! Let's give a clue...
-            var team = role[0]; // 'R' or 'B' team
-
-            giveClue(g.cards, team, function(clueWord, posWords) {
-                guessClue(clueWord.toLowerCase(), posWords, function(guesses, words) {
-
-                    // Calculate the numeric part of the clue
-                    var count = 0;
-                    for (var j=0; j<guesses.length; j++) {
-                        // Count all the team's words whose association score is above a threshold
-                        if (guesses[j].prob >= 0.075) {
-                            count++;
-                        }
-                    }
-                    count = Math.max(count, 1);
-                    var word = clueWord[0].toUpperCase()+clueWord.substring(1, clueWord.length).toLowerCase();
-                    var clue = word + ' ' + count;
-
-                    // Prepare to send the clue to the game clients
-                    var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
-                    io.sockets.in(gameID).emit('newClue', clue, role, nextRole, g.guessTimer);
-                    console.log('Computer clue: ' + clue);
-                });
-            });
-        }
 
         socket.on('clue', function(clue, role) {
             console.log(clue);
