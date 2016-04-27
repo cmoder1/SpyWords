@@ -205,10 +205,14 @@ select {
     margin-bottom: 60px; 
 }
 
+#score {
+	margin: 15px 7px 3px 7px;
+}
+
 h2 {
 	font-family: 'Exo', sans-serif;
 	font-size: 45pt;
-	margin: 0 0 10px 0;
+	margin: -10px 0 0px 0;
 }
 
 #blueScore {
@@ -234,7 +238,7 @@ h2 {
 
 #turnOrder {
 	height: 200px;
-	margin: 20px;
+	margin: 0px 20px;
 }
 
 .role {
