@@ -1,6 +1,8 @@
 body {
 	font-family: 'Exo', sans-serif;
 	margin: 0px;
+	min-width: 900px;
+	min-height: 602px;
 }
 
 div {
@@ -253,6 +255,8 @@ h2 {
 
 .role p {
 	position: relative;
+	width: 60px;
+    left: -8px;
 	top: 52px;
 	font-size: 10pt;
 	overflow: hidden;
@@ -271,6 +275,14 @@ h2 {
     background-size: 45px;
     background-repeat: no-repeat;
 }
+
+/*
+#names p {
+	display: inline-block;
+	margin: 4px;
+	width: 55px;
+}
+*/
 
 .blueTeam {
 	background-color: rgba(5,113,176,0.6);
@@ -315,6 +327,34 @@ h2 {
 #clueRequirements, #noCheating, #noSymbols {
 	color: red;
 	display: none;
+}
+
+@media (max-height: 675px), (max-width: 1015px){
+	#controls p, #submitClue {
+		font-size: 12pt;
+	}
+	#controls h2 {
+		font-size: 30pt;
+	}
+	#timer {
+		width: 75px;
+	}
+	#timer p {
+		font-size: 15pt;
+	}
+	#clue {
+		width: 175px;
+	}
+	#BSM, #RSM, #BFA, #RFA {
+		width: 45px;
+		height: 45px;
+		background-size: 35px;
+	}
+	#BSM p, #RSM p, #BFA p, #RFA p {
+		font-size: 8pt;
+		top: 42px;
+		width: 50px;
+	}
 }
 
 /*
