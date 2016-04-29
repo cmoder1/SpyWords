@@ -505,6 +505,15 @@ h2 {
 	padding: 10px 5px 10px 30px;
 }
 
+.clueB {
+	color: rgb(5,113,176);
+	font-size: 18px;
+}
+.clueR {
+	color: rgb(202,0,32);
+	font-size: 18px;
+}
+
 .stats ul {
 	margin-top: 0px;
 	padding: 10px 20px;

@@ -147,7 +147,7 @@ window.addEventListener('load', function(){
 	socket.on('newClue', function(clue, prev, next, time) {
 		$('#clue').html(clue);
 		if (clue != '&mdash;') {
-			$('#history ul').append('<li class="message">'+clue+'</li>');
+			$('#history ul').append('<li class="message clue'+ prev[0] +'">'+clue+'</li>');
 			$('#history').scrollTop($('#history')[0].scrollHeight);
 		}
 		nextTurn(prev, next, time);
