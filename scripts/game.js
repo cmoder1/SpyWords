@@ -68,6 +68,7 @@ window.addEventListener('load', function(){
 			}
 		});
 
+		$('#history ul').empty();
 		startGameDisplay(null, turn, timer);
 	});
 	
@@ -303,6 +304,7 @@ function startGameDisplay(interv, turn, timer) {
 function revealCard(wordIdx, cardTeam) {
 	console.log(wordIdx + ' ' + cardTeam);
 	$('#history ul').append('<li class="guess">  &ndash; '+$('.'+wordIdx).children().html()+'</li>');
+	$('#history').scrollTop($('#history')[0].scrollHeight);
 	if (cardTeam === 'B') {
 		$('#blueScore').html($('#blueScore').html()*1 - 1);
 		$('.'+wordIdx).css('background-color', 'rgb(5,113,176)');

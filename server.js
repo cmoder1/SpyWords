@@ -483,6 +483,7 @@ db.once('open', function() {
                 g.gameStatus = 'active';
                 //callback(true);
                 io.sockets.in(gameID).emit('restart', g.turn, g.clueTimer, g.cards);
+                checkComputerTurn(g, g.order[0], null);
 
             });
         });
@@ -800,11 +801,12 @@ function guessClue(clue, words, callback) {
     for (var i=0; i<words.length; i++) {
         var word = words[i].toLowerCase();
         word = word.replace(' ', '_');
-        var url = "http://conceptnet5.media.mit.edu/data/5.4/assoc/c/en/"+clue.toLowerCase()+"?filter=/c/en/"+word+"/.&limit=1";
+        // NOTE: the order of word, clue is surprisingly important
+        var url = "http://conceptnet5.media.mit.edu/data/5.4/assoc/c/en/"+word+"?filter=/c/en/"+clue.toLowerCase()+"/.&limit=1";
 
         request(url, function(result) {
             if (result.similar.length !== 0) {
-                guesses.push({ word: result.similar[0][0].substring(6, result.similar[0][0].length), prob: result.similar[0][1] });
+                guesses.push({ word: result.terms[0][0].substring(6, result.terms[0][0].length), prob: result.similar[0][1] });
                 //console.log(guesses.length);
             } else {
                 guesses.push({ word: 'NOTHING', prob: 0 });
