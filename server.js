@@ -139,7 +139,9 @@ db.once('open', function() {
                         clueTimer: clueTime,
                         guessTimer: guessTime,
                         guessCount: 0,
-                        gameStatus: 'pregame'
+                        gameStatus: 'pregame',
+                        blueRemaining: 9,
+                        redRemaining: 8
                     };
                     gameData[gameID] = g;
                     callback(true);
@@ -298,6 +300,14 @@ db.once('open', function() {
         });
 
         function checkComputerTurn(g, role, clue) {
+            console.log('RED: '+g.redRemaining);
+            console.log('BLUE: '+g.blueRemaining);
+            if (g.redRemaining === 0 || g.blueRemaining === 0) {
+                g.gameStatus = 'gameOver';
+            }
+            if (g.gameStatus === 'gameOver') {
+                return;
+            }
             if (!g.order.human[g.order.indexOf(role)]) {
                 if (role[1] === 'S') {
                     computerClue(g, role);
@@ -346,6 +356,11 @@ db.once('open', function() {
                         cardTeam = c.team;
                     }
 
+                    if (cardTeam === 'R') {
+                        g.redRemaining--;
+                    } else if (cardTeam === 'B') {
+                        g.blueRemaining--;
+                    }
                     g.guessCount++;
                     var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
                     //var cardTeam = g.cards[wordIdx].team;
@@ -353,6 +368,9 @@ db.once('open', function() {
                     console.log('Guess '+g.guessCount+' of '+clue.split(' ')[1]+': '+guess);
                     if (clue.split(' ')[1]*1 === g.guessCount || role[0] !== cardTeam) {
                         g.turn = nextRole;
+                        if (cardTeam === 'assassin') {
+                            g.gameStatus = 'gameOver';
+                        }
                         io.sockets.in(gameID).emit('lastGuess', wordIdx, cardTeam, role, nextRole, g.clueTimer);
                         keepGuessing = false;
                         checkComputerTurn(g, nextRole, null);
@@ -429,10 +447,19 @@ db.once('open', function() {
                 g.guessCount++;
                 var nextRole = g.order[(g.order.indexOf(role)+1) % g.order.length];
                 var cardTeam = g.cards[wordIdx].team;
+                if (cardTeam === 'R') {
+                    g.redRemaining--;
+                } else if (cardTeam === 'B') {
+                    g.blueRemaining--;
+                }
+
                 g.cards[wordIdx].guessed = true;
                 console.log('Guess '+g.guessCount+' of '+clue.split(' ')[1]);
                 if (clue.split(' ')[1]*1 === (g.guessCount-1) || role[0] !== cardTeam) {
                     g.turn = nextRole;
+                    if (cardTeam === 'assassin') {
+                        g.gameStatus = 'gameOver';
+                    }
                     io.sockets.in(gameID).emit('lastGuess', wordIdx, cardTeam, role, nextRole, g.clueTimer);
                     checkComputerTurn(g, nextRole, null);
                 } else {
@@ -465,6 +492,8 @@ db.once('open', function() {
             console.log('STARTING A NEW GAME!');
             var gameID = socket.gameID;
             var g = gameData[gameID];
+            g.gameStatus = 'active';
+
             if (g === undefined) {
                 return;
             }
@@ -686,7 +715,9 @@ function createGame(gameID, numPlayers, claimedRole) {
                 clueTimer: '2:30',
                 guessTimer: '2:30',
                 guessCount: 0,
-                gameStatus: 'pregame'
+                gameStatus: 'pregame',
+                blueRemaining: 9,
+                redRemaining: 8
             };
             gameData[gameID] = g;
             //callback(true);
@@ -759,6 +790,8 @@ function giveClue(cards, team, callback) {
         if (c.guessed === false) {
             if (c.team === team) {
                 posWords.push(c.word.toLowerCase().replace(' ', '_'));
+            } else if (c.team === 'assassin') {
+                negWords.unshift(c.word.toLowerCase().replace(' ', '_'));
             } else if (c.team !== 'neutral') {
                 negWords.push(c.word.toLowerCase().replace(' ', '_'));
             }
@@ -789,6 +822,7 @@ function giveClue(cards, team, callback) {
                     return;
                 }
             }
+            callback('YOLO', posWords);
         }
     });
 
