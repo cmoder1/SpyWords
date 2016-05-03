@@ -329,34 +329,6 @@ h2 {
 	display: none;
 }
 
-@media (max-height: 675px), (max-width: 1015px){
-	#controls p, #submitClue {
-		font-size: 12pt;
-	}
-	#controls h2 {
-		font-size: 30pt;
-	}
-	#timer {
-		width: 75px;
-	}
-	#timer p {
-		font-size: 15pt;
-	}
-	#clue {
-		width: 175px;
-	}
-	#BSM, #RSM, #BFA, #RFA {
-		width: 45px;
-		height: 45px;
-		background-size: 35px;
-	}
-	#BSM p, #RSM p, #BFA p, #RFA p {
-		font-size: 8pt;
-		top: 42px;
-		width: 50px;
-	}
-}
-
 /*
 @media (max-width: 1050px) {
 	.card {
@@ -555,7 +527,7 @@ h2 {
 	position: fixed;
 	top: 35vh;
 	left: 0px;
-	width: 100%;
+	width: 70%;
 }
 
 #waiting img {
@@ -587,4 +559,56 @@ h2 {
     height: 120px;
     padding: 30px;
     border: 1px solid black;
+}
+
+#addComputers {
+	position: fixed;
+    right: 0px;
+    top: 112px;
+    width: 30%;
+    text-align: center;
+}
+#addComputers p {
+	display: inline-block;
+	background-color: rgb(41,159,208);
+    color: white;
+    padding: 9px;
+    font-size: 13pt;
+    margin: 4px;
+    border-radius: 10px;
+}
+
+/*
+ * SMALL SCREEN
+ */
+
+@media (max-height: 675px), (max-width: 1015px){
+	#controls p, #submitClue {
+		font-size: 12pt;
+	}
+	#controls h2 {
+		font-size: 30pt;
+	}
+	#timer {
+		width: 75px;
+	}
+	#timer p {
+		font-size: 15pt;
+	}
+	#clue {
+		width: 175px;
+	}
+	#BSM, #RSM, #BFA, #RFA {
+		width: 45px;
+		height: 45px;
+		background-size: 35px;
+	}
+	#BSM p, #RSM p, #BFA p, #RFA p {
+		font-size: 8pt;
+		top: 42px;
+		width: 50px;
+	}
+	#addComputers {
+		top: 75px;
+	}
 }

@@ -23,8 +23,8 @@ window.addEventListener('load', function(){
 	 * ensure that the game name is unique before revealing game settings window
 	 */ 
 	$('#newGame').on('click', function(){
-		var username = $('#username').val();
-		var gamename = $('#gamename').val();
+		var username = sanitize($('#username').val());
+		var gamename = sanitize($('#gamename').val());
 		if (username.split(' ').join('') !== '' && gamename.split(' ').join('') !== '') {
 			socket.emit('validateName', gamename, function(valid, full) {
 				if (valid) {
@@ -64,8 +64,9 @@ window.addEventListener('load', function(){
 	 * ensure that the game name already exists before prompting to join
 	 */
 	$('#joinGame').on('click', function(){
-		var username = $('#username').val();
-		var gamename = $('#gamename').val();
+		var username = sanitize($('#username').val());
+		var gamename = sanitize($('#gamename').val());
+		console.log(username);
 		if (username.split(' ').join('') !== '' && gamename.split(' ').join('') !== '') {
 			socket.emit('validateName', gamename, function(unique, full) {
 				if (!unique) {
@@ -96,8 +97,8 @@ window.addEventListener('load', function(){
 
 
 	$('#create').on('click', function(){
-		var username = $('#username').val();
-		var gamename = $('#gamename').val();
+		var username = sanitize($('#username').val());
+		var gamename = sanitize($('#gamename').val());
 		socket.emit('createGame', gamename, username, $('#role').val(), $('#numPlayers').val(), 
 			$('#clueMins').val()+':'+$('#clueSecs').val(), $('#guessMins').val()+':'+$('#guessSecs').val(), function(valid) {
 				if (valid) {
@@ -111,8 +112,8 @@ window.addEventListener('load', function(){
 	});
 
 	$('#join').on('click', function(){
-		var username = $('#username').val();
-		var gamename = $('#gamename').val();
+		var username = sanitize($('#username').val());
+		var gamename = sanitize($('#gamename').val());
 		socket.emit('joinGame', gamename, username, $('#role2').val(), function(valid){
 			if (valid) {
 				location.href='/'+gamename+'/'+$('#role2').val()+'/'+username;
@@ -135,6 +136,9 @@ window.addEventListener('load', function(){
 }, false);
 
 
+function sanitize(word) {
+	return word.split('<').join('').split('>').join('').split('/').join('');
+}
 
 function updateRoles(roles) {
 	console.log(roles);

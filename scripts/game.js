@@ -269,6 +269,8 @@ function startGameDisplay(interv, turn, timer) {
 	colorPlayer(meta('currentTurn'), true);
 
 	$('#waiting').css('display', 'none');
+	$('#addComputers').css('display', 'none');
+	
 	$('#cards').css('opacity', '1');
 	$('#controls').css('opacity', '1');
 

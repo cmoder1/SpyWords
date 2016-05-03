@@ -6,6 +6,7 @@ var	bodyParser = require('body-parser');
 //var anyDB = require('any-db');
 var engines = require('consolidate');
 var mongoose = require('mongoose');
+var sanitizeHtml = require('sanitize-html');
 /*var suspend = require('suspend'),
     resume = suspend.resume;*/
 //var wait = require('wait.for');
@@ -493,6 +494,8 @@ db.once('open', function() {
             var gameID = socket.gameID;
             var g = gameData[gameID];
             g.gameStatus = 'active';
+            g.blueRemaining = 9;
+            g.redRemaining = 8;
 
             if (g === undefined) {
                 return;
@@ -518,7 +521,15 @@ db.once('open', function() {
         });
 
         socket.on('message', function(user, message) {
-            io.sockets.in(socket.gameID).emit('newMessage', user, message);
+            var cleanMessage = sanitizeHtml(message, {
+                allowedTags: [ 'b', 'i', 'em', 'strong', 'a' ],
+                allowedAttributes: {
+                    'a': [ 'href' ]
+                }
+            });
+            if (cleanMessage.split(" ").join("") !== "") {
+                io.sockets.in(socket.gameID).emit('newMessage', user, cleanMessage);
+            }
         });
 
         // the client disconnected/closed their browser window
