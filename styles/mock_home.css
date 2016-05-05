@@ -41,22 +41,28 @@ p#rules {
 	color: #225ea8;
 }*/
 
-#gamesList {
+.infoList {
 	display: none;
 	width: auto;
     background: #ffffd4;
     border: 1px solid #cc4c02;
     border-radius: 5px;
 }
-#gamesList h4 {
+.infoList h4 {
 	margin: 10px 20px;
 }
-#gamesList ul {
+.infoList ul {
 	padding: 0px;
 	margin: 10px 20px;
 }
-#gamesList li {
+.infoList li {
 	display: block;
+}
+.textB {
+	color: rgb(5,113,176);
+}
+.textR {
+	color: rgb(202,0,32);
 }
 
 p#rules:hover {

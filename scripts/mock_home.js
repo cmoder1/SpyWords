@@ -1,4 +1,10 @@
 var socket = io.connect();
+var translations = {
+	'BSM': 'Blue Spy Master',
+	'BFA': 'Blue Field Agent',
+	'RSM': 'Red Spy Master',
+	'RFA': 'Red Field Agent'
+}
 var idleTime = 0;
 
 // This code will be executed when the page finishes loading
@@ -16,6 +22,9 @@ window.addEventListener('load', function(){
     });
 
     $('#gamename').on('focus', function() {
+    	if ($('#gamePlayers').css('display') === 'inline-block') {
+    		return;
+    	}
     	socket.emit('findGames', function(games) {
     		$('#gamesList ul').empty();
     		for (var i=0; i<games.length; i++) {
@@ -29,6 +38,23 @@ window.addEventListener('load', function(){
     });
     $('#gamename').on('blur', function() {
     	$('#gamesList').css('display', 'none');
+    });
+    $('#gamename').on('keyup', function() {
+    	socket.emit('getPlayers', $('#gamename').val(), function(players) {
+    		if (players !== null) {
+    			$('#gamePlayers ul').empty();
+    			$('#gamesList').css('display', 'none');
+
+				for (var p=0; p<players.length; p++) {
+					var pl = players[p];
+		    		$('#gamePlayers ul').append('<li class="text'+pl.role[0]+'">'+translations[pl.role]+": "+pl.username+'</li>');
+				}
+				$('#gamePlayers').css('display', 'inline-block');
+			} else {
+				$('#gamePlayers').css('display', 'none');
+				$('#gamesList').css('display', 'inline-block');
+			}
+		});
     });
 
 	$('#rules').on('click', function(){ 
@@ -105,7 +131,12 @@ window.addEventListener('load', function(){
 		}
 	});
 
-	socket.on('roleUpdate', function(gameID, roles) {
+	socket.on('roleUpdate', function(gameID, roles, players) {
+		$('#gamePlayers ul').empty();
+		for (var p=0; p<players.length; p++) {
+			var pl = players[p];
+    		$('#gamePlayers ul').append('<li class="text'+pl.role[0]+'">'+translations[pl.role]+": "+pl.username+'</li>');
+		}
 		if ($('#gamename').val() === gameID) {
 			updateRoles(roles);
 		}

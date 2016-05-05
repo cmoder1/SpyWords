@@ -207,7 +207,7 @@ db.once('open', function() {
                 g.roles.splice(g.roles.indexOf(role), 1);
                 
                 // Update the home and game clients of this change
-                io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
+                io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles, g.players);
                 io.sockets.in(gameID).emit('newPlayer', role, username);
             }
 
@@ -909,7 +909,7 @@ var findOpenGames = function(callback) {
     for (var i = 0; i<gameIDs.length; i++) {
         var gameID = gameIDs[i];
         //console.log(roomName);
-        if (gameData[gameID].open) {
+        if (gameData[gameID].open && gameData[gameID].roles.length > 0) {
             games.push(gameID);
         }
     }
