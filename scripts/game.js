@@ -186,6 +186,42 @@ window.addEventListener('load', function(){
 		$('#'+role).html('<p>'+name+'</p>');
 	});
 
+	socket.on('reroute', function(newID, swap) {
+		refreshOverride = false;
+		console.log('GOING TO '+newID);
+		var oldRole = meta('role');
+		var newRole = oldRole;
+		switch(swap) {
+			case 'swap1':
+				break;
+			case 'swap2':
+				if (oldRole === 'BFA') { newRole = 'RFA'; }
+				if (oldRole === 'RFA') { newRole = 'BFA'; }
+				break;
+			case 'swap3':
+				if (oldRole === 'BSM') { newRole = 'BFA'; }
+				if (oldRole === 'BFA') { newRole = 'BSM'; }
+				if (oldRole === 'RSM') { newRole = 'RFA'; }
+				if (oldRole === 'RFA') { newRole = 'RSM'; }
+				break;
+			case 'swap4':
+				if (oldRole === 'BSM') { newRole = 'BFA'; }
+				if (oldRole === 'BFA') { newRole = 'RSM'; }
+				if (oldRole === 'RSM') { newRole = 'RFA'; }
+				if (oldRole === 'RFA') { newRole = 'BSM'; }
+				break;
+			case 'swap5':
+				if (oldRole === 'BFA') { newRole = 'RSM'; }
+				if (oldRole === 'RSM') { newRole = 'BFA'; }
+				break;
+			case 'swap6':
+				if (oldRole === 'BSM') { newRole = 'RFA'; }
+				if (oldRole === 'RFA') { newRole = 'BSM'; }
+				break;
+		}
+		location.href = "/"+newID+"/"+newRole+"/"+meta('username');
+	});
+
 	$('.role').on('click', function(e) {
 		console.log($('#'+$(e.target).attr('id')+' p').html() + ': '+$(e.target).attr('id'));
 		if ($('#'+$(e.target).attr('id')+' p').html() === '-') {
@@ -236,7 +272,8 @@ window.addEventListener('load', function(){
 
 	$('#newGame').on('click', function(e) {
 		e.preventDefault();
-		socket.emit('newGame');
+		// Read in what type of role configuration is desired
+		socket.emit('newGame', $('#newroles').val());
 	})
 	
 	/*window.onunload = window.onbeforeunload = function() {
@@ -342,12 +379,12 @@ function revealCard(wordIdx, cardTeam) {
 			gameOver('B');
 		}
 	}
-	/*
+	
 	for (var i=0; i<2; i++) {
-		$('.'+wordIdx).animate({opacity: 0.5}, 500);
-		$('.'+wordIdx).animate({opacity: 1}, 500);
+		$('.'+wordIdx).animate({opacity: 0.3}, 300);
+		$('.'+wordIdx).animate({opacity: 1}, 300);
 	}
-	*/
+	
 }
 
 function nextTurn(prevRole, currRole, time) {

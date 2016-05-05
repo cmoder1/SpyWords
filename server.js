@@ -1,3 +1,5 @@
+// TODO: didn't get assassin one game...
+
 // Required modules
 var fs = require('fs');
 var http = require('http'); 
@@ -489,7 +491,26 @@ db.once('open', function() {
             callback(unguessedCards);
         });
 
-        socket.on('newGame', function() {
+        socket.on('newGame', function(swap) {
+
+            var gameID = socket.gameID;
+            var g = gameData[gameID];
+
+            var num = parseInt(gameID[gameID.length-1]);
+            var newID = gameID+'1';
+
+            if (!isNaN(num)) {
+                append = (num+1)+'';
+                newID = gameID.substr(0, gameID.length-1)+append;
+            }
+            while (gameData[newID] !== undefined) {
+                newID = newID.substr(0, newID.length-1)+(parseInt(newID[newID.length-1])+1);
+            }
+
+            createGame(newID, 4, 'BSM');
+            io.sockets.in(gameID).emit('reroute', newID, swap);
+            console.log(newID);
+            /*
             console.log('STARTING A NEW GAME!');
             var gameID = socket.gameID;
             var g = gameData[gameID];
@@ -518,6 +539,7 @@ db.once('open', function() {
                 checkComputerTurn(g, g.order[0], null);
 
             });
+            */  
         });
 
         socket.on('message', function(user, message) {

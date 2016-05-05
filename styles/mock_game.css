@@ -55,7 +55,7 @@ button .name1, button .name2{
 	width: 100%;
 	height: 100%;
 	z-index: -2;
-	background: red; /* For browsers that do not support gradients */
+	background: #fe9929; /* For browsers that do not support gradients */
 	background: -webkit-radial-gradient(#ffffd4, #fed98e, #fe9929, #cc4c02); /* Safari 5.1 to 6.0 */
 	background: -o-radial-gradient(#ffffd4, #fed98e, #fe9929, #cc4c02); /* For Opera 11.6 to 12.0 */
 	background: -moz-radial-gradient(#ffffd4, #fed98e, #fe9929, #cc4c02); /* For Firefox 3.6 to 15 */
@@ -474,7 +474,7 @@ h2 {
 }
 
 #history ul {
-	padding: 10px 5px 10px 30px;
+	padding: 10px 15px;
 }
 
 .clueB {
@@ -550,15 +550,18 @@ h2 {
 #gameOver {
 	background-color: rgb(255,255,212);
 	position: fixed;
-	top: 20.5vh;
+	top: 55vh;
 	display: none;
     width: 300px;
     text-align: center;
     /*left: calc(50% - 150px);*/
     right: 5%;
-    height: 120px;
+    height: auto;
     padding: 30px;
     border: 1px solid black;
+}
+#newroles {
+	width: 215px;
 }
 
 #addComputers {
