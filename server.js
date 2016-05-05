@@ -95,6 +95,10 @@ db.once('open', function() {
 
         });
 
+        socket.on('findGames', function(callback) {
+            findOpenGames(callback);
+        });
+
         // Create a new game with the given settings
         socket.on('createGame', function(gameID, username, claimedRole, numPlayers, clueTime, guessTime, callback) {
             // Check to ensure that the gameID is not being used
@@ -132,6 +136,7 @@ db.once('open', function() {
 
                     // Create a new game object with the given settings
                     var g = {
+                        open: true,
                         gameID: gameID,
                         cards: card_data,
                         numPlayers: numPlayers,
@@ -738,6 +743,7 @@ function createGame(gameID, numPlayers, claimedRole) {
 
             // Create a new game object with the given settings
             var g = {
+                open: true,
                 gameID: gameID,
                 cards: card_data,
                 numPlayers: numPlayers,
@@ -894,6 +900,20 @@ function submitGuess(guesses, words) {
         return b.prob - a.prob;
     });
     console.log(guesses);
+}
+
+var findOpenGames = function(callback) {
+    var games = [];
+    var gameIDs = Object.keys(gameData);
+
+    for (var i = 0; i<gameIDs.length; i++) {
+        var gameID = gameIDs[i];
+        //console.log(roomName);
+        if (gameData[gameID].open) {
+            games.push(gameID);
+        }
+    }
+    callback(games);
 }
 
 // Send out a request to a given url, and call the callback with the received data

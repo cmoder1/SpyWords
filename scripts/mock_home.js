@@ -15,6 +15,22 @@ window.addEventListener('load', function(){
         idleTime = 0;
     });
 
+    $('#gamename').on('focus', function() {
+    	socket.emit('findGames', function(games) {
+    		$('#gamesList ul').empty();
+    		for (var i=0; i<games.length; i++) {
+    			$('#gamesList ul').append('<li>'+games[i]+'</li>');
+    		}
+    		if (games.length === 0) {
+    			$('#gamesList ul').append('<li>No Games Found</li>');
+    		}
+    	});
+    	$('#gamesList').css('display', 'inline-block');
+    });
+    $('#gamename').on('blur', function() {
+    	$('#gamesList').css('display', 'none');
+    });
+
 	$('#rules').on('click', function(){ 
 		$('#howToPlay').css('display', 'block');
 	});

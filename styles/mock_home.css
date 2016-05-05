@@ -33,6 +33,31 @@ p#rules {
 	text-decoration: underline;
 	color: #225ea8;
 }
+/*p#openGames {
+	margin: 10vh auto 10px auto;
+	width: 200px;
+	font-size: 12pt;
+	text-decoration: underline;
+	color: #225ea8;
+}*/
+
+#gamesList {
+	display: none;
+	width: auto;
+    background: #ffffd4;
+    border: 1px solid #cc4c02;
+    border-radius: 5px;
+}
+#gamesList h4 {
+	margin: 10px 20px;
+}
+#gamesList ul {
+	padding: 0px;
+	margin: 10px 20px;
+}
+#gamesList li {
+	display: block;
+}
 
 p#rules:hover {
 	cursor: pointer;
