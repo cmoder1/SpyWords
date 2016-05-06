@@ -9,6 +9,28 @@ div {
     box-sizing: border-box;
 }
 
+#exit {
+	position: fixed;
+    top: 15px;
+    right: 35px;
+    background-color: rgba(122,1,119,0.5);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    border-bottom: 2px solid rgba(102,1,99,0.9);
+    border-left: 2px solid rgba(102,1,99,0.9);
+    border-top: 2px solid rgba(122,1,119,0.5);
+    border-right: 2px solid rgba(122,1,119,0.5);
+}
+#exit:hover {
+	background-color: rgba(122,1,119,0.9);
+	border-bottom: 2px solid rgba(152,1,149,0.9);
+    border-left: 2px solid rgba(152,1,149,0.9);
+}
+.name1, .name2 {
+	cursor: pointer;
+}
 h1 {
     font-size: 35pt;
     margin: 16px 20px 5px 38px;

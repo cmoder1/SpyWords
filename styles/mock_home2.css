@@ -1,0 +1,207 @@
+body {
+	font-family: 'Exo', sans-serif;
+	width: auto;
+	height: auto;
+	text-align: center;
+	vertical-align: middle;
+}
+
+h1 {
+    font-size: 75pt;
+    margin: 13vh auto 4vh auto;
+}
+
+h2 {
+	margin: 0 0 10px 0;
+}
+
+p {
+	font-size: 15pt;
+    margin: 7px;
+}
+
+#formPrompt, #uniquePrompt, #existsPrompt, #fullPrompt, #inputError {
+	display: none;
+	color: red;
+	margin-bottom: 0px;
+}
+
+p#rules {
+	margin: 10vh auto;
+	width: 200px;
+	font-size: 12pt;
+	text-decoration: underline;
+	color: #225ea8;
+}
+
+p#rules:hover {
+	cursor: pointer;
+	color: #ae017e;
+}
+
+.name2 {
+	font-weight: 200;
+	font-style: italic;
+	color: #225ea8;
+}
+
+.name1 {
+	color: #ae017e;
+	font-weight: 400;
+}
+
+button .name1, button .name2{
+	color: black;
+}
+
+/* ColorBrewer 2.0 is used for the color scheme (4 classes sequential)*/
+#grad {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	z-index: -1;
+	background: red; /* For browsers that do not support gradients */
+	background: -webkit-radial-gradient(#ffffd4, #fed98e, #fe9929, #cc4c02); /* Safari 5.1 to 6.0 */
+	background: -o-radial-gradient(#ffffd4, #fed98e, #fe9929, #cc4c02); /* For Opera 11.6 to 12.0 */
+	background: -moz-radial-gradient(#ffffd4, #fed98e, #fe9929, #cc4c02); /* For Firefox 3.6 to 15 */
+	background: radial-gradient(#ffffd4, #fed98e, #fe9929, #cc4c02); /* Standard syntax */
+}
+
+input[type="text"] {
+	padding: 7px;
+	margin: 5px;
+	font-family: 'Exo', sans-serif;
+	font-size: 15px;
+	border: solid 1px #bababa;
+	border-radius: 3px;
+	transition: box-shadow 0.3s, border 0.3s;
+	height: 15px;
+	background-color: rgba(255,255,255,0.5);
+}
+
+input[type="text"]:focus {
+	border: solid 1px #707070;
+	box-shadow: 0 0 5px 1px #969696;
+}
+
+input[type='number'] {
+	padding: 5px;
+	width: 30px;
+	margin: 5px;
+	font-family: 'Exo', sans-serif;
+	font-size: 15px;
+	border: solid 1px #bababa;
+	border-radius: 3px;
+	transition: box-shadow 0.3s, border 0.3s;
+	height: 20px;
+	background-color: rgba(255,255,255,0.5);
+}
+
+#clueSecs, #guessSecs {
+	width: 35px;
+}
+
+#clueMins, #guessMins {
+	width: 23px;
+}
+
+select {
+	width: 180px;
+    height: 27px;
+	margin: 5px;
+	padding: 1px 3px;
+	font-family: 'Exo', sans-serif;
+	font-size: 15px;
+	border: solid 1px #bababa;
+	border-radius: 3px;
+	transition: box-shadow 0.3s, border 0.3s;
+	background-color: rgba(255,255,255,0.5);
+}
+
+#numPlayers {
+	width: 50px;
+}
+
+[type="button"] {
+	transition: box-shadow 0.3s, border 0.3s;
+    cursor: pointer;
+    border-radius: 3px;
+    border: 1px solid #999;
+    font-family: 'Exo', sans-serif;
+    font-weight: 400;
+    background-color: rgba(174,1,126,0.3);
+
+   	width: 200px;
+    display: block;
+    margin: 20px auto;
+    padding: 5px 25px;
+    font-size: 18pt;
+}
+
+[type="button"]:hover {
+    border: solid 1px #67A;
+	box-shadow: 0 0 5px 1px #969696;
+    background-color: rgba(34,94,168, 0.3);
+}
+
+/* Setup windows
+*/
+
+.close {
+    position: absolute;
+    left: -7px;
+    top: -7px;
+    background-color: #cc4c02;
+    padding: 1px 6px;
+    color: #ffffd4;
+}
+
+.close:hover {
+	cursor: pointer;
+}
+
+#create, #join {
+	font-size: 12pt;
+	width: auto;
+	float: right;
+	margin: 20px 0 0 0;
+}
+
+.setup {
+	text-align: left;
+	display: none;
+	position: fixed;
+	width: 300px;
+	padding: 35px;
+	top: 30vh;
+	left: 50%;
+	margin-left: -185px;
+	background-color: #ffea9f;
+	border: 1px solid #cc4c02;
+	border-radius: 3px;
+}
+
+.setup p {
+	display: inline-block;
+}
+
+#howToPlay {
+	top: 10vh;
+	height: 70vh;
+	width: 700px;
+	margin-left: -385px;
+	overflow: scroll;
+}
+
+#howToPlay h4 {
+	border-bottom: 1px solid rgba(0,0,0,0.2);
+	margin: 0px;
+	padding: 5px;
+}
+
+#howToPlay p {
+	font-size: 12pt;
+}
+

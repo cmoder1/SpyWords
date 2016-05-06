@@ -14,6 +14,14 @@ window.addEventListener('load', function(){
     $(document).keypress(function (e) {
         idleTime = 0;
     });
+    $('#exit').on('click', function() {
+    	refreshOverride = false;
+    	location.href="/";
+    });
+    $('.name1, .name2').on('click', function() {
+    	refreshOverride = false;
+    	location.href="/";
+    });
 
 	$('#cards').css('opacity', '0.5');
 	$('#controls').css('opacity', '0.5');
