@@ -461,6 +461,17 @@ h2 {
 #chat .hamburger {
 	width: 40%;
 }
+#newMessage {
+	display: none;
+	position: fixed;
+    bottom: 0px;
+    left: 470px;
+    font-size: 12pt;
+    color: white;
+    background-color: rgb(41,159,208);
+    padding: 4px 10px;
+    border-radius: 30px;
+}
 
 #pastClues .windowHeader {
 	width: calc(80% - 28px);

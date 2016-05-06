@@ -248,6 +248,7 @@ window.addEventListener('load', function(){
 			//$('#chat').css('bottom', '0px');
 			$('#chat').animate({ 'bottom': '0px' }, 300);
 		}
+		$('#newMessage').css('display', 'none');
 	});
 	$('#pastClues p').on('click', function() {
 		if ($('#pastClues').css('bottom') === '0px') {
@@ -269,9 +270,10 @@ window.addEventListener('load', function(){
 	socket.on('newMessage', function(user, message) {
 		//alert('Message:' + user + message);
 		if ($('#chat').css('bottom') === '-360px') {
-			for (var i=0; i<1; i++) {
-				$('#chat').animate({ opacity: 0.5 }, 300);
-				$('#chat').animate({ opacity: 1 }, 300);
+			$('#newMessage').css('display', 'block');
+			for (var i=0; i<2; i++) {
+				$('#newMessage').animate({ opacity: 0.3 }, 300);
+				$('#newMessage').animate({ opacity: 1 }, 300);
 			}
 		}
 		$('#messages ul').append('<li class="message"><span class="chatName">'+user+':</span> '+message+'</li><br>');
