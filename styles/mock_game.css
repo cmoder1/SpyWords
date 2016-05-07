@@ -155,7 +155,7 @@ input[type='number'] {
 }
 
 select {
-	padding: 5px;
+	padding: 0px;
 	width: 170px;
     height: 25px;
 	margin: 5px;

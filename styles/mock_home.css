@@ -108,7 +108,7 @@ input[type="text"] {
 	border: solid 1px #bababa;
 	border-radius: 3px;
 	transition: box-shadow 0.3s, border 0.3s;
-	height: 15px;
+	height: 20px;
 	background-color: rgba(255,255,255,0.5);
 }
 
