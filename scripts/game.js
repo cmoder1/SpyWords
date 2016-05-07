@@ -183,7 +183,8 @@ window.addEventListener('load', function(){
 	socket.emit('waiting', meta('gameID'), meta('role'), meta('username'));
 	socket.on('roleTaken', function() {
 		// CHANGED FOR TESTING PURPOSES!!!!!!
-		//location.href = '/';
+		refreshOverride = false;
+		location.href = '/';
 	});
 	// HANDLE THE USER REFRESHING OR SNEAKING INTO THE GAME
 	//socket.emit('reloadGame', meta('gameID'), meta('role'), meta('username'));
@@ -374,6 +375,9 @@ function revealCard(wordIdx, cardTeam) {
 		if ($('#blueScore').html() === '0') {
 			gameOver('B');
 		}
+		if (meta('role')[1] === 'F') {
+			$('.'+wordIdx).toggleClass('B');
+		}
 	} else if (cardTeam === 'R') {
 		$('#redScore').html($('#redScore').html()*1 - 1);
 		$('.'+wordIdx).css('background-color', 'rgba(202,0,32,1)');
@@ -382,6 +386,9 @@ function revealCard(wordIdx, cardTeam) {
 		$($('.'+wordIdx).children()).css('opacity', '0.2');
 		if ($('#redScore').html() === '0') {
 			gameOver('R');
+		}
+		if (meta('role')[1] === 'F') {
+			$('.'+wordIdx).toggleClass('R');
 		}
 	} else if (cardTeam === 'neutral') {
 		$('.'+wordIdx).css('background-color', 'rgb(215,184,119)');

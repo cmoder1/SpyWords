@@ -1,21 +1,14 @@
-// TODO: didn't get assassin one game...
-
 // Required modules
 var fs = require('fs');
 var http = require('http'); 
 var express = require('express');
 var	bodyParser = require('body-parser');
-//var anyDB = require('any-db');
 var engines = require('consolidate');
 var mongoose = require('mongoose');
 var sanitizeHtml = require('sanitize-html');
-/*var suspend = require('suspend'),
-    resume = suspend.resume;*/
-//var wait = require('wait.for');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 // Prepare variables
-//var conn = anyDB.createConnection('sqlite3://codenames.db');
 var app = express(); 
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
@@ -30,7 +23,7 @@ app.use(bodyParser.json());
 app.use('/scripts', express.static('scripts'));
 app.use('/styles', express.static('styles'));
 
-// heroku code
+// heroku code for setting the port
 app.set('port', (process.env.PORT || 8080));
 
 /* ========================================================
@@ -49,15 +42,20 @@ db.once('open', function() {
      * ======================================================== */
 
     var gameSchema = new mongoose.Schema({
+        open: Boolean,
         gameID: String,
         cards: [{ word: String, team: String, guessed: Boolean }],
         numPlayers: Number,
         players: [{ username: String, team: String, role: String }],
         roles: [String],
+        order: [String],
         turn: String,
         clueTimer: String,
         guessTimer: String,
-        gameStatus: String
+        guessCount: Number,
+        gameStatus: String,
+        blueRemaining: Number,
+        redRemaining: Number
     });
 
     var Game = mongoose.model('Game', gameSchema);
@@ -95,67 +93,14 @@ db.once('open', function() {
 
         });
 
+        // Find games that are open to the public and not yet full
         socket.on('findGames', function(callback) {
             findOpenGames(callback);
         });
 
         // Create a new game with the given settings
         socket.on('createGame', function(gameID, username, claimedRole, numPlayers, clueTime, guessTime, callback) {
-            // Check to ensure that the gameID is not being used
-            if (gameData[gameID] !== undefined) {
-                console.log('USED GAME');
-                callback(false);
-            } else {
-                // Generate a set of words for the new game
-                generateWords(function(words) {
-
-                    // Assemble all of the card data
-                    var teams = assignCards();
-                    var card_data = [];
-                    for (var i=0; i<words.length; i++) {
-                        card_data.push({ 'word': words[i], 'team': teams[i], 'guessed': false, 'index': i });
-                    }
-
-                    // Establish available roles and turn order
-                    var order = ['BSM', 'BFA', 'RSM', 'RFA'];
-                    var roles = ['BSM', 'BFA', 'RSM', 'RFA'];
-                    var human = [true, true, true, true];
-                    var turn = 'BSM';
-                    if (numPlayers === '2') {
-                        human = [true, true];
-                        if (claimedRole[0] === 'B') {
-                            roles = ['BSM', 'BFA'];
-                            order = ['BSM', 'BFA'];
-                        } else {
-                            roles = ['RSM', 'RFA'];
-                            order = ['RSM', 'RFA'];
-                            turn = 'RSM';
-                        }
-                    }
-                    order.human = human;
-
-                    // Create a new game object with the given settings
-                    var g = {
-                        open: true,
-                        gameID: gameID,
-                        cards: card_data,
-                        numPlayers: numPlayers,
-                        players: [],
-                        roles: roles,
-                        order: order,
-                        turn: turn,
-                        clueTimer: clueTime,
-                        guessTimer: guessTime,
-                        guessCount: 0,
-                        gameStatus: 'pregame',
-                        blueRemaining: 9,
-                        redRemaining: 8
-                    };
-                    gameData[gameID] = g;
-                    callback(true);
-
-                });
-            }
+            createGame(gameID, claimedRole, numPlayers, clueTime, guessTime, callback);
         });
 
         // Retrieve the available roles for a game and pass them to a callback
@@ -197,6 +142,8 @@ db.once('open', function() {
                 console.log(g.roles);
                 // Your desired role has been taken!
                 if (g.roles.indexOf(role) === -1) {
+                    console.log('THAT ROLE IS TAKEN');
+                    socket.role = null;
                     socket.emit('roleTaken');
                     return;
                 }
@@ -512,39 +459,10 @@ db.once('open', function() {
                 newID = newID.substr(0, newID.length-1)+(parseInt(newID[newID.length-1])+1);
             }
 
-            createGame(newID, 4, 'BSM');
-            io.sockets.in(gameID).emit('reroute', newID, swap);
-            console.log(newID);
-            /*
-            console.log('STARTING A NEW GAME!');
-            var gameID = socket.gameID;
-            var g = gameData[gameID];
-            g.gameStatus = 'active';
-            g.blueRemaining = 9;
-            g.redRemaining = 8;
-
-            if (g === undefined) {
-                return;
-            }
-            generateWords(function(words) {
-
-                var teams = assignCards();
-                var cards = [];
-
-                for (var i=0; i<words.length; i++) {
-                    cards.push({ 'word': words[i], 'team': teams[i], 'guessed': false, 'index': i });
-                }
-
-                g.cards = cards;
-                g.turn = g.order[0];
-                g.guessCount = 0;
-                g.gameStatus = 'active';
-                //callback(true);
-                io.sockets.in(gameID).emit('restart', g.turn, g.clueTimer, g.cards);
-                checkComputerTurn(g, g.order[0], null);
-
-            });
-            */  
+            createGame(newID, 'BSM', 4, '2:30', '2:30', function(valid) {
+                io.sockets.in(gameID).emit('reroute', newID, swap);
+                console.log(newID);
+            });  
         });
 
         socket.on('message', function(user, message) {
@@ -564,7 +482,7 @@ db.once('open', function() {
             // Leave the room!
             var gameID = socket.gameID;
             var g = gameData[gameID];
-            if (g !== undefined){
+            if (g !== undefined && socket.role !== null){
                 console.log('Socket Disconnected');
                 console.log(g.roles);
                 g.roles.push(socket.role);
@@ -604,33 +522,12 @@ db.once('open', function() {
 
         console.log('GET request for game: '+gameID);
 
-        /*Game.findOne({ gameID: gameID }, function(err, g) {
-            //console.log('Found!');
-            //console.log(g['gameID']);
-
-            if (g === null) {
-                console.log('This game has not been created!');
-                response.redirect('/');
-            } else {
-                var game_data = { gameID: gameID, role: role, cards: g['cards'] };
-                if (role === 'BSM' || role === 'RSM') {
-                    response.render('spyMaster.html', game_data);
-                } else {
-                    response.render('fieldAgent.html', game_data);
-                }
-                //temp = g.roles;
-                //temp.splice(temp.indexOf('RSM'),1);
-                // TODO: Actually update the game object
-                //g.roles = temp;
-                //g.save();
-                //io.sockets.in('Home').emit('roleUpdate', g.gameID, temp);
-            }
-        });*/
         var g = gameData[gameID];
         if (g === null || g === undefined) {
             console.log('This game has not been created!');
-            createGame(gameID, 4, role);
-            response.redirect('/'+gameID+'/'+role+'/'+username);
+            createGame(gameID, role, 4, '2:30', '2:30', function(valid) {
+                response.redirect('/'+gameID+'/'+role+'/'+username);
+            });
         } else {
 
             var game_data = { gameID: gameID, role: role, username: username, cards: g['cards'] };
@@ -639,12 +536,6 @@ db.once('open', function() {
             } else {
                 response.render('fieldAgent.html', game_data);
             }
-            //temp = g.roles;
-            //temp.splice(temp.indexOf('RSM'),1);
-            // TODO: Actually update the game object
-            //g.roles = temp;
-            //g.save();
-            //io.sockets.in('Home').emit('roleUpdate', g.gameID, temp);
         }
     });
 
@@ -708,10 +599,10 @@ function generateWords(callback) {
     });
 }
 
-function createGame(gameID, numPlayers, claimedRole) {
+function createGame(gameID, claimedRole, numPlayers, clueTime, guessTime, callback) {//gameID, numPlayers, claimedRole) {
     if (gameData[gameID] !== undefined) {
         console.log('USED GAME');
-        //callback(false);
+        callback(false);
     } else {
         // Generate a set of words for the new game
         generateWords(function(words) {
@@ -751,15 +642,15 @@ function createGame(gameID, numPlayers, claimedRole) {
                 roles: roles,
                 order: order,
                 turn: turn,
-                clueTimer: '2:30',
-                guessTimer: '2:30',
+                clueTimer: clueTime,
+                guessTimer: guessTime,
                 guessCount: 0,
                 gameStatus: 'pregame',
                 blueRemaining: 9,
                 redRemaining: 8
             };
             gameData[gameID] = g;
-            //callback(true);
+            callback(true);
 
         });
     }
