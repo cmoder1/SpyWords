@@ -284,14 +284,14 @@ h2 {
 	overflow: hidden;
 }
 
-#BSM, #RSM {
+.SMlogo {
 	background-image: url('spy.png');
     background-position: 5px 5px;
     background-size: 45px;
     background-repeat: no-repeat;
 }
 
-#BFA, #RFA {
+.FAlogo {
 	background-image: url('question.svg');
     background-position: 5px 5px;
     background-size: 45px;
@@ -647,4 +647,18 @@ h2 {
 	#addComputers {
 		top: 75px;
 	}
+}
+
+.colorlessRed {
+	background-image: url('diamond.png');
+    background-position: 0px 0px;
+    background-size: 0.6vh;
+    background-repeat: repeat;
+}
+
+.colorlessBlue {
+	background-image: url('diagonals.png');
+    background-position: 0px 0px;
+    background-size: 25vh;
+    background-repeat: repeat;
 }

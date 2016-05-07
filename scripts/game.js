@@ -22,6 +22,17 @@ window.addEventListener('load', function(){
     	refreshOverride = false;
     	location.href="/";
     });
+    $(document).keydown(function(e) {
+        if (e.keyCode == 65 && e.ctrlKey) {
+    		$('.R').toggleClass('colorlessRed');
+			$('.B').toggleClass('colorlessBlue');
+			$('.SM').toggleClass('SMlogo');
+			$('.FA').toggleClass('FAlogo');
+			$('.blueTeam').toggleClass('colorlessBlue');
+			$('.redTeam').toggleClass('colorlessRed');
+
+        }
+    });
 
 	$('#cards').css('opacity', '0.5');
 	$('#controls').css('opacity', '0.5');
