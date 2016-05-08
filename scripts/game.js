@@ -19,7 +19,7 @@ window.addEventListener('load', function(){
     	location.href="/";
     });
     $('.name1, .name2').on('click', function() {
-    	refreshOverride = false;
+    	//refreshOverride = false;
     	location.href="/";
     });
     $(document).keydown(function(e) {
