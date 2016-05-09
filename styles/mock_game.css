@@ -637,6 +637,8 @@ h2 {
 	#BSM, #RSM, #BFA, #RFA {
 		width: 45px;
 		height: 45px;
+	}
+	.SMlogo, .FAlogo {
 		background-size: 35px;
 	}
 	#BSM p, #RSM p, #BFA p, #RFA p {
@@ -652,13 +654,13 @@ h2 {
 .colorlessRed {
 	background-image: url('diamond.png');
     background-position: 0px 0px;
-    background-size: 0.6vh;
+    background-size: 0.55vh;
     background-repeat: repeat;
 }
 
 .colorlessBlue {
 	background-image: url('diagonals.png');
     background-position: 0px 0px;
-    background-size: 25vh;
+    background-size: 35vh;
     background-repeat: repeat;
 }
