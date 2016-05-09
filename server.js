@@ -139,10 +139,8 @@ db.once('open', function() {
 
             var g = gameData[gameID];
             if (g !== undefined) {
-                console.log(g.roles);
                 // Your desired role has been taken!
                 if (g.roles.indexOf(role) === -1) {
-                    console.log('THAT ROLE IS TAKEN');
                     socket.role = null;
                     socket.emit('roleTaken');
                     return;
@@ -212,8 +210,10 @@ db.once('open', function() {
 
             // Start the game if the robot fills the game
             if (g !== undefined && g.roles.length === 0) {//g.players.length == g.numPlayers) {//clients.length === 4) {
-                g.gameStatus = 'active';
-                io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
+                if (g.gameStatus === 'pregame') {
+                    g.gameStatus = 'active';
+                    io.sockets.in(gameID).emit('startGame', g.turn, g.clueTimer);
+                }
 
                 // If computer is first player have them submit a clue
                 checkComputerTurn(g, g.order[0], null);
@@ -503,7 +503,6 @@ db.once('open', function() {
                     delete gameData[gameID];
                 }*/
             }
-            console.log('TODO');
         });
 
     });
