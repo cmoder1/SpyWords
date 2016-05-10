@@ -11,7 +11,6 @@
     "mongoose": "^4.4.6",
     "sanitize-html": "^1.11.4",
     "socket.io": "^1.4.5",
-    "sqlite3": "3.1.x",
     "xmlhttprequest": "^1.8.0"
   }
 }
