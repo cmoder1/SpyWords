@@ -642,6 +642,7 @@ function createGame(gameID, claimedRole, numPlayers, clueTime, guessTime, callba
                 blueRemaining: 9,
                 redRemaining: 8
             };
+            console.log("Created a new game: "+gameID);
             gameData[gameID] = g;
             callback(true);
 
