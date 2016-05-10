@@ -481,8 +481,9 @@ db.once('open', function() {
         socket.on('disconnect', function(){
             // Leave the room!
             var gameID = socket.gameID;
-            console.log(socket.username+" has left "+gameID);
             var g = gameData[gameID];
+            console.log(socket.username+" has left "+gameID);
+            
             if (g !== undefined && socket.role !== null){
                 //console.log('Socket Disconnected');
                 g.roles.push(socket.role);
@@ -497,7 +498,13 @@ db.once('open', function() {
                     io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
                     io.sockets.in(gameID).emit('newPlayer', socket.role, '-');
                 }
+            } else if (g !== undefined && g.roles.length === g.numPlayers*1) {
+                // Check for spammers
+                delete gameData[gameID];
+                console.log('Deleted game: '+gameID);
+                return;
             }
+
         });
 
     });
