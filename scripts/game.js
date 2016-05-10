@@ -1,11 +1,12 @@
 var socket = io.connect();
 var idleTime = 0;
 var refreshOverride = true;
+var cardTexture = false;
 // This code will be executed when the page finishes loading
 window.addEventListener('load', function(){
 	
 	//Increment the idle time counter every minute.
-    var idleInterval = setInterval(timerIncrement, 60000); // 1/6 minute
+    var idleInterval = setInterval(timerIncrement, 60000); 
 
     //Zero the idle timer on mouse movement.
     $(document).mousemove(function (e) {
@@ -30,7 +31,7 @@ window.addEventListener('load', function(){
 			$('.FA').toggleClass('FAlogo');
 			$('.blueTeam').toggleClass('colorlessBlue');
 			$('.redTeam').toggleClass('colorlessRed');
-
+			cardTexture = (!cardTexture);
         }
     });
 
@@ -80,8 +81,8 @@ window.addEventListener('load', function(){
 					word = $(card).html();
 					index = $($(card).parent()).attr('class').split(' ')[1];
 				}
-				console.log(word);
-				console.log(index);
+				//console.log(word);
+				//console.log(index);
 				socket.emit('guessWord', index, $('#clue').html(), myRole);
 				//socket.emit('cardClick', ...) // Perhaps give each card an ID to pass along
 			}
@@ -109,15 +110,15 @@ window.addEventListener('load', function(){
 				word = $(card).html();
 				index = $($(card).parent()).attr('class').split(' ')[1];
 			}
-			console.log(word);
-			console.log(index);
+			//console.log(word);
+			//console.log(index);
 			socket.emit('guessWord', index, $('#clue').html(), myRole);
 			//socket.emit('cardClick', ...) // Perhaps give each card an ID to pass along
 		}
 	});
 
 	socket.on('lastGuess', function(wordIdx, cardTeam, prev, next, time) {
-		console.log('LAST GUESS');
+		//console.log('LAST GUESS');
 		revealCard(wordIdx, cardTeam);
 		$('#clue').html('&mdash;');
 		nextTurn(prev, next, time);
@@ -137,7 +138,7 @@ window.addEventListener('load', function(){
 		var clue = $('#clueWord').val();
 		var num = $('#clueNum').val();
 		if (meta('role') === meta('currentTurn')) {
-			console.log(clue + ' ' + num);
+			//console.log(clue + ' ' + num);
 			socket.emit('validateClue', clue, num*1, function(valid) {
 				if (valid === 'valid') {
 					socket.emit('clue', clue+' '+num, meta('role'));
@@ -190,7 +191,7 @@ window.addEventListener('load', function(){
 	//socket.emit('reloadGame', meta('gameID'), meta('role'), meta('username'));
 
 	socket.emit('getPlayers', meta('gameID'), function(players) {
-		console.log('getPlayers: '+players);
+		//console.log('getPlayers: '+players);
 		if (players === null) {
 			//$(window).unbind('beforeunload');
 			refreshOverride = false;
@@ -208,7 +209,7 @@ window.addEventListener('load', function(){
 
 	socket.on('reroute', function(newID, swap) {
 		refreshOverride = false;
-		console.log('GOING TO '+newID);
+		//console.log('GOING TO '+newID);
 		var oldRole = meta('role');
 		var newRole = oldRole;
 		switch(swap) {
@@ -243,9 +244,9 @@ window.addEventListener('load', function(){
 	});
 
 	$('.role').on('click', function(e) {
-		console.log($('#'+$(e.target).attr('id')+' p').html() + ': '+$(e.target).attr('id'));
+		//console.log($('#'+$(e.target).attr('id')+' p').html() + ': '+$(e.target).attr('id'));
 		if ($('#'+$(e.target).attr('id')+' p').html() === '-') {
-			console.log('REPLACE WITH ROBOT');
+			//console.log('REPLACE WITH ROBOT');
 			socket.emit('setRobotPlayer', $(e.target).attr('id'), function() {
 				$('#'+$(e.target).attr('id')+' p').html('Computer');
 			});
@@ -298,21 +299,15 @@ window.addEventListener('load', function(){
 		socket.emit('newGame', $('#newroles').val());
 	})
 	
-	/*window.onunload = window.onbeforeunload = function() {
-		return "Are you really sure?\nRefreshing the page may make you lose game data!";
-	};*/
 	window.addEventListener("beforeunload", function (e) {
 		if (refreshOverride) {
-			console.log('REFRESH');
+			//console.log('REFRESH');
 			var confirmationMessage = "Are you really sure?\nRefreshing the page may make you lose game data!";
 			e.preventDefault();
 			e.returnValue = confirmationMessage;     // Gecko, Trident, Chrome 34+
 			return confirmationMessage;              // Gecko, WebKit, Chrome <34
 		}
 	});
-	/*$(window).on('beforeunload', function) {
-		return "Are you really sure?\nRefreshing the page may disconnect you from the game!";
-	});*/
 
 }, false);
 
@@ -324,7 +319,7 @@ window.addEventListener('load', function(){
 function startGameDisplay(interv, turn, timer) {
 	$('#blueScore').html('9');
 	$('#redScore').html('8');
-	console.log('Game Started');
+	//console.log('Game Started');
 	colorPlayer(meta('currentTurn'), true);
 
 	$('#waiting').css('display', 'none');
@@ -363,7 +358,7 @@ function startGameDisplay(interv, turn, timer) {
 }
 
 function revealCard(wordIdx, cardTeam) {
-	console.log(wordIdx + ' ' + cardTeam);
+	//console.log(wordIdx + ' ' + cardTeam);
 	$('#history ul').append('<li class="guess">  &ndash; '+$('.'+wordIdx).children().html()+'</li>');
 	$('#history').scrollTop($('#history')[0].scrollHeight);
 	if (cardTeam === 'B') {
@@ -376,7 +371,11 @@ function revealCard(wordIdx, cardTeam) {
 			gameOver('B');
 		}
 		if (meta('role')[1] === 'F') {
+			if (cardTexture) {
+				$('.'+wordIdx).toggleClass('colorlessBlue');
+			}
 			$('.'+wordIdx).toggleClass('B');
+			
 		}
 	} else if (cardTeam === 'R') {
 		$('#redScore').html($('#redScore').html()*1 - 1);
@@ -388,7 +387,11 @@ function revealCard(wordIdx, cardTeam) {
 			gameOver('R');
 		}
 		if (meta('role')[1] === 'F') {
+			if (cardTexture) {
+				$('.'+wordIdx).toggleClass('colorlessRed');
+			}
 			$('.'+wordIdx).toggleClass('R');
+			
 		}
 	} else if (cardTeam === 'neutral') {
 		$('.'+wordIdx).css('background-color', 'rgb(215,184,119)');
@@ -539,7 +542,7 @@ function timeTick() {
 }
 
 function timerIncrement() {
-	console.log('INACTIVE: ' + idleTime + ' minutes');
+	//console.log('INACTIVE: ' + idleTime + ' minutes');
     idleTime++;
     if (idleTime > 10) { // 10 minutes
     	refreshOverride = false;
