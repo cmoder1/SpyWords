@@ -481,6 +481,7 @@ db.once('open', function() {
         socket.on('disconnect', function(){
             // Leave the room!
             var gameID = socket.gameID;
+            console.log(socket.username+" has left "+gameID);
             var g = gameData[gameID];
             if (g !== undefined && socket.role !== null){
                 //console.log('Socket Disconnected');
@@ -491,7 +492,7 @@ db.once('open', function() {
                 var clients = io.sockets.adapter.rooms[gameID];
                 if (g.roles.length === g.numPlayers*1 || clients === undefined || clients.length === 0) {
                     delete gameData[gameID];
-                    //console.log('DELETED GAME: '+gameID);
+                    console.log('Deleted game: '+gameID);
                 } else {
                     io.sockets.in('Home').emit('roleUpdate', g.gameID, g.roles);
                     io.sockets.in(gameID).emit('newPlayer', socket.role, '-');
@@ -522,7 +523,7 @@ db.once('open', function() {
                 response.redirect('/'+gameID+'/'+role+'/'+username);
             });
         } else {
-
+            console.log(username+" has entered "+gameID);
             var game_data = { gameID: gameID, role: role, username: username, cards: g['cards'] };
             if (role === 'BSM' || role === 'RSM') {
                 response.render('spyMaster.html', game_data);
